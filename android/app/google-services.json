@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1193162860",
+    "project_id": "kuro-chat-8e2aa",
+    "storage_bucket": "kuro-chat-8e2aa.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1193162860:android:7e61bd21ec2aa98171c049",
+        "android_client_info": {
+          "package_name": "com.example.kuro_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1193162860-d8rvh5i9n4fopc2ep5otm9qkeei3j5e3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCyuSqd1KHY2d5463sVs0c0cIvyvUk8cBA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1193162860-d8rvh5i9n4fopc2ep5otm9qkeei3j5e3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
