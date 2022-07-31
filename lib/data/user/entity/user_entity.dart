@@ -9,4 +9,9 @@ class UserEntity {
   final String id;
 
   UserEntity({required this.id});
+
+  factory UserEntity.fromJson(Map<String, dynamic> json) =>
+      _$UserEntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserEntityToJson(this);
 }

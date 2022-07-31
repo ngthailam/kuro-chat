@@ -1,0 +1,1 @@
+const prefKeyCurrentUser = 'user';
