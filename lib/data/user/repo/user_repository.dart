@@ -4,7 +4,7 @@ import 'package:kuro_chat/data/user/datasource/user_remote_datasource.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class UserRepo {
-  Future<UserEntity> fetchUser(String userId);
+  Future<UserEntity?> fetchUser(String userId);
   // Only call if you are sure user is logged in
   // and data exist
   UserEntity getCurrentUserFast();
@@ -18,8 +18,9 @@ class UserRepoImpl extends UserRepo {
   final UserLocalDataSource _localDataSource;
 
   @override
-  Future<UserEntity> fetchUser(String userId) async {
+  Future<UserEntity?> fetchUser(String userId) async {
     final user = await _remoteDataSource.fetchUser(userId);
+    if (user == null) return null;
     await _localDataSource.saveCurrentUser(user);
     return user;
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/core/config/firebase_options.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
+import 'package:kuro_chat/presentation/util/app_router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,25 +23,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      onGenerateRoute: (settings) => AppRouter.generateRoute(settings),
+      initialRoute: AppRouter.home,
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Hello world')),
-    );
-  }
-}
