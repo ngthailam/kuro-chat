@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
-import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/presentation/page/channel/list/cubit/channel_list_cubit.dart';
 import 'package:kuro_chat/presentation/page/channel/list/cubit/channel_list_state.dart';
+import 'package:kuro_chat/presentation/util/app_router.dart';
 
 class ChannelListPage extends StatefulWidget {
   const ChannelListPage({Key? key}) : super(key: key);
@@ -17,18 +17,24 @@ class _ChannelListPageState extends State<ChannelListPage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ChannelListCubit>(
-      create: (_) => _cubit,
-      child: Stack(
-        children: [
-          _channelList([]),
-          _createChannelFab(),
-        ],
+    return Scaffold(
+      body: BlocProvider<ChannelListCubit>(
+        create: (_) => _cubit..initialize(),
+        child: SizedBox(
+          height: double.infinity,
+          width: double.infinity,
+          child: Stack(
+            children: [
+              _channelList(),
+              _createChannelFab(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _channelList(List<ChannelEntity> channels) {
+  Widget _channelList() {
     return BlocBuilder<ChannelListCubit, ChannelListState>(
       buildWhen: (previous, current) {
         if (current is! ChannelListPrimary) {
@@ -67,14 +73,19 @@ class _ChannelListPageState extends State<ChannelListPage> {
       bottom: 16,
       right: 16,
       child: FloatingActionButton(
+        backgroundColor: Colors.amberAccent,
         onPressed: () {
           _openCreateChannelPage();
         },
+        child: const Icon(
+          Icons.add,
+          size: 24,
+        ),
       ),
     );
   }
 
   void _openCreateChannelPage() {
-    // TODO: impl
+    Navigator.of(context).pushNamed(AppRouter.channelCreate);
   }
 }

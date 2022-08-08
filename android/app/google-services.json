@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "1193162860",
+    "firebase_url": "https://kuro-chat-8e2aa-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "kuro-chat-8e2aa",
     "storage_bucket": "kuro-chat-8e2aa.appspot.com"
   },
@@ -29,6 +30,13 @@
             {
               "client_id": "1193162860-d8rvh5i9n4fopc2ep5otm9qkeei3j5e3.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "1193162860-2napmd3qcpl65ah93ijjuub00k8n4n19.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.kuroChat"
+              }
             }
           ]
         }

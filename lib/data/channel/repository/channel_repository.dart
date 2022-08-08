@@ -9,6 +9,8 @@ abstract class ChannelRepo {
   Future<List<ChannelEntity>> getMyChannels();
 
   Future<ChannelEntity> getChannel(String channelId);
+
+  Future<List<ChannelEntity>> findChannel(String channelId);
 }
 
 @Injectable(as: ChannelRepo)
@@ -34,5 +36,11 @@ class ChannelRepoImpl extends ChannelRepo {
   @override
   Future<List<ChannelEntity>> getMyChannels() {
     return _channelRemoteDataSource.getMyChannels();
+  }
+  
+  @override
+  Future<List<ChannelEntity>> findChannel(String channelId) {
+    return _channelRemoteDataSource.findChannel(channelId);
+
   }
 }

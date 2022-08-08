@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/presentation/page/auth/register/cubit/register_cubit.dart';
 import 'package:kuro_chat/presentation/page/auth/register/cubit/register_state.dart';
+import 'package:kuro_chat/presentation/util/app_router.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _RegisterPageState extends State<RegisterPage> {
         child: BlocListener<RegisterCubit, RegisterState>(
           listener: (context, state) {
             if (state is RegisterSuccess) {
-              _openChannelListPage();
+              _openLoginPage();
               return;
             }
           },
@@ -58,7 +59,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  void _openChannelListPage() {
-    // TODO: impl
+  void _openLoginPage() {
+    Navigator.of(context).popAndPushNamed(AppRouter.login);
   }
 }

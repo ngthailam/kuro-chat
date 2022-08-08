@@ -11,6 +11,8 @@ abstract class ChannelRemoteDataSource {
   Future<List<ChannelEntity>> getMyChannels();
 
   Future<ChannelEntity> getChannel(String channelId);
+
+  Future<List<ChannelEntity>> findChannel(String channelId);
 }
 
 @Injectable(as: ChannelRemoteDataSource)
@@ -73,5 +75,13 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     }
 
     return channels;
+  }
+
+  // TODO: move to use firestore instead
+  @override
+  Future<List<ChannelEntity>> findChannel(String channelId) async {
+    final ref = FirebaseDatabase.instance.ref('channels');
+    // TODO: find a solution to implement this
+    return [];
   }
 }

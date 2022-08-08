@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kuro_chat/main.dart';
 import 'package:kuro_chat/presentation/page/auth/login/login_page.dart';
 import 'package:kuro_chat/presentation/page/auth/register/register_page.dart';
 import 'package:kuro_chat/presentation/page/channel/create/channel_create_page.dart';

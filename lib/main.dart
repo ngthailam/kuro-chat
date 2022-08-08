@@ -3,11 +3,11 @@ import 'package:kuro_chat/core/config/firebase_options.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize things here
-  initFirebase();
+  await initFirebase();
   initGetItDi();
 
   // Run app

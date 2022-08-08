@@ -10,7 +10,7 @@ class LoginCubit extends Cubit<LoginState> {
   final AuthRepo _authRepo;
 
   Future login(String text) async {
-    await _authRepo.logIn(text);
-    emit(LoginSuccess());
+    final isLoginSuccess = await _authRepo.logIn(text);
+    emit(LoginResult(isSuccess: isLoginSuccess));
   }
 }

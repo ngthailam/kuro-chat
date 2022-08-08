@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
@@ -12,7 +14,7 @@ abstract class UserRemoteDataSource {
 class UserRemoteDataSourceImpl extends UserRemoteDataSource {
   @override
   Future<UserEntity?> fetchUser(String userId) async {
-    final ref = FirebaseDatabase.instance.ref('/users/$userId');
+    final ref = FirebaseDatabase.instance.ref('users/$userId');
     final data = await ref.get();
     if (data.exists) {
       return UserEntity.fromJson(data.value as Map<String, dynamic>);
@@ -23,8 +25,12 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
 
   @override
   Future<void> createUser(String userId) async {
-    final ref = FirebaseDatabase.instance.ref('/users/$userId');
-    await ref.set(UserEntity(id: userId).toJson());
+    final ref = FirebaseDatabase.instance.ref('users/$userId');
+    try {
+      await ref.set(UserEntity(id: userId).toJson());
+    } catch (e) {
+      log('create user error $e');
+    }
     return;
   }
 }

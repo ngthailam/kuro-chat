@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/presentation/page/auth/login/cubit/login_cubit.dart';
 import 'package:kuro_chat/presentation/page/auth/login/cubit/login_state.dart';
+import 'package:kuro_chat/presentation/util/app_router.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -29,8 +30,13 @@ class _LoginPageState extends State<LoginPage> {
         create: (_) => _cubit,
         child: BlocListener<LoginCubit, LoginState>(
           listener: (context, state) {
-            if (state is LoginSuccess) {
-              _openChannelListPage();
+            if (state is LoginResult) {
+              if (state.isSuccess) {
+                _openChannelListPage();
+              } else {
+                ScaffoldMessenger.of(context)
+                    .showSnackBar(SnackBar(content: Text('Error')));
+              }
             }
           },
           child: Column(
@@ -40,6 +46,12 @@ class _LoginPageState extends State<LoginPage> {
                 controller: _controller,
               ),
               const SizedBox(height: 8),
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(context).pushNamed(AppRouter.register);
+                },
+                child: const Text('Register'),
+              ),
               MaterialButton(
                 onPressed: () {
                   if (_controller.text.isEmpty) {
@@ -58,6 +70,6 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void _openChannelListPage() {
-    // TODO: impl
+    Navigator.of(context).popAndPushNamed(AppRouter.channelList);
   }
 }
