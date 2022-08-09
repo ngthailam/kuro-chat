@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Kuro Chat',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(),
       onGenerateRoute: (settings) => AppRouter.generateRoute(settings),
@@ -28,4 +28,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

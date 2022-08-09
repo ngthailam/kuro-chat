@@ -83,7 +83,6 @@ Future initFirebase() async {
 
   try {
     await Firebase.initializeApp(
-      name: 'Kuro Chat',
       options: DefaultFirebaseOptions.currentPlatform,
     );
     _isFirebaseInitialized = true;

@@ -65,8 +65,8 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   @override
   Future<List<ChannelEntity>> getMyChannels() async {
     final userChannelsRef = FirebaseDatabase.instance.ref('users/channels');
-    final userChannelRefData =
-        await userChannelsRef.get() as Map<String, dynamic>;
+    final data = (await userChannelsRef.get()).value;
+    final userChannelRefData = data as Map<String, dynamic>? ?? {};
     final channels = <ChannelEntity>[];
 
     for (var channelId in userChannelRefData.keys) {
