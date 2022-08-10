@@ -2,26 +2,44 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/chat/entity/chat_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
-import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 abstract class ChatRemoteDataSource {
+  Stream<List<ChatMessageEntity>> observeMessages(String channelId);
+
   Future<ChatEntity> getChat(String channelId);
 
   Future<ChatEntity> createChat(String channelId);
 
-  Future<bool> sendMessage(String channelId, String text);
+  Future<bool> sendMessage({
+    required String channelId,
+    required String text,
+    required String senderId,
+    required String senderName,
+  });
 
   Future<bool> deleteMessage(String channelId, String messageId);
 }
 
 @Injectable(as: ChatRemoteDataSource)
 class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
-  final UserLocalDataSource _userLocalDataSource;
+  @override
+  Stream<List<ChatMessageEntity>> observeMessages(String channelId) {
+    final ref = FirebaseDatabase.instance.ref('chat/$channelId/messages');
+    return ref.onValue.map((event) {
+      final snapshotList = event.snapshot.children;
+      final List<ChatMessageEntity> messages = [];
+      for (var data in snapshotList) {
+        if (data.exists) {
+          final msg = ChatMessageEntity.fromJson(
+            Map<String, dynamic>.from(data.value as Map),
+          );
+          messages.add(msg);
+        }
+      }
 
-  ChatRemoteDataSourceImpl(this._userLocalDataSource);
-
-  String get currentUserId {
-    return _userLocalDataSource.getCurrentUserFast().id;
+      return messages
+        ..sort((a, b) => b.createTimeEpoch.compareTo(a.createTimeEpoch));
+    });
   }
 
   @override
@@ -37,7 +55,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
       channelId: channelId,
       messages: [],
     );
-    await ref.set(newChatEntity);
+    await ref.set(newChatEntity.toJson());
     return newChatEntity;
   }
 
@@ -49,16 +67,29 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }
 
   @override
-  Future<bool> sendMessage(String channelId, String text) async {
+  Future<bool> sendMessage({
+    required String channelId,
+    required String text,
+    required String senderId,
+    required String senderName,
+  }) async {
+    if (channelId.isEmpty ||
+        text.isEmpty ||
+        senderId.isEmpty ||
+        senderName.isEmpty) {
+      return false;
+    }
+
     final nowEpoch = DateTime.now().millisecondsSinceEpoch;
     final ref = FirebaseDatabase.instance.ref(
       'chat/$channelId/messages/$nowEpoch',
     );
     final newChatMessage = ChatMessageEntity(
-      senderId: currentUserId,
-      text: text,
-      createTimeEpoch: nowEpoch,
-    );
+        senderId: senderId,
+        senderName: senderName,
+        text: text,
+        createTimeEpoch: nowEpoch,
+        type: chatTypeMessage);
 
     // Add try catch
     await ref.update(newChatMessage.toJson());

@@ -8,17 +8,17 @@ part of 'channel_entity.dart';
 
 ChannelEntity _$ChannelEntityFromJson(Map<String, dynamic> json) =>
     ChannelEntity(
-      channelId: json['channelId'] as String,
-      channelName: json['channelName'] as String? ?? '',
+      channelId: json['id'] as String,
+      channelName: json['name'] as String?,
       members: (json['members'] as Map<String, dynamic>?)?.map(
             (k, e) => MapEntry(k, e as bool),
           ) ??
-          const {},
+          {},
     );
 
 Map<String, dynamic> _$ChannelEntityToJson(ChannelEntity instance) =>
     <String, dynamic>{
-      'channelId': instance.channelId,
-      'channelName': instance.channelName,
+      'id': instance.channelId,
+      'name': instance.channelName,
       'members': instance.members,
     };

@@ -11,11 +11,12 @@ abstract class UserLocalDataSource {
   Future<UserEntity?> getCurrentUser();
 
   Future<bool> deleteCurrentUser();
-
-  UserEntity getCurrentUserFast();
 }
 
 UserEntity? _user;
+// Careful on usage
+UserEntity? get currentUser => _user;
+String get currentUserId => _user!.id;
 
 @Injectable(as: UserLocalDataSource)
 class UserLocalDataSourceImpl extends UserLocalDataSource {
@@ -30,7 +31,10 @@ class UserLocalDataSourceImpl extends UserLocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     final userJsonString = prefs.getString(prefKeyCurrentUser);
     if (userJsonString?.isNotEmpty != true) return null;
-    return UserEntity.fromJson(jsonDecode(userJsonString!));
+    final userEntity = UserEntity.fromJson(jsonDecode(userJsonString!));
+    // Save for RAM cache when opened app already logged in
+    _user ??= userEntity;
+    return userEntity;
   }
 
   @override
@@ -38,10 +42,5 @@ class UserLocalDataSourceImpl extends UserLocalDataSource {
     final prefs = await SharedPreferences.getInstance();
     final userJsonString = jsonEncode(user.toJson());
     return prefs.setString(prefKeyCurrentUser, userJsonString);
-  }
-
-  @override
-  UserEntity getCurrentUserFast() {
-    return _user!;
   }
 }

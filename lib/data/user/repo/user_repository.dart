@@ -5,9 +5,6 @@ import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class UserRepo {
   Future<UserEntity?> fetchUser(String userId);
-  // Only call if you are sure user is logged in
-  // and data exist
-  UserEntity getCurrentUserFast();
 }
 
 @Injectable(as: UserRepo)
@@ -23,10 +20,5 @@ class UserRepoImpl extends UserRepo {
     if (user == null) return null;
     await _localDataSource.saveCurrentUser(user);
     return user;
-  }
-
-  @override
-  UserEntity getCurrentUserFast() {
-    return _localDataSource.getCurrentUserFast();
   }
 }

@@ -1,27 +1,70 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:kuro_chat/core/di/get_it_config.dart';
-import 'package:kuro_chat/presentation/page/channel/create/cubit/channel_create_cubit.dart';
+import 'package:get/get.dart';
+import 'package:kuro_chat/core/utils/load_state.dart';
+import 'package:kuro_chat/presentation/page/channel/create/channel_create_controller.dart';
 
-class ChannelCreatePage extends StatefulWidget {
+class ChannelCreatePage extends GetView<ChannelCreateController> {
   const ChannelCreatePage({Key? key}) : super(key: key);
-
-  @override
-  State<ChannelCreatePage> createState() => _ChannelCreatePageState();
-}
-
-class _ChannelCreatePageState extends State<ChannelCreatePage> {
-  final ChannelCreateCubit _cubit = getIt();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocProvider<ChannelCreateCubit>(
-        create: (_) => _cubit,
-        child: Text(
-          'Create channel poage',
-        ),
+      body: Column(
+        children: [
+          _searchBox(),
+          Expanded(child: _searchResults()),
+        ],
       ),
     );
+  }
+
+  Widget _searchBox() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: TextField(
+        onChanged: (text) {
+          controller.searchChannel(text);
+        },
+      ),
+    );
+  }
+
+  Widget _searchResults() {
+    return Obx(() {
+      final searchLoadState = controller.searchLoadState.value;
+      final searchResults = controller.searchResults;
+
+      if (searchLoadState == LoadState.loading && searchResults.isEmpty) {
+        return const Center(
+          child: CupertinoActivityIndicator(),
+        );
+      }
+
+      if (searchLoadState == LoadState.success) {
+        if (searchResults.isEmpty) {
+          return const Center(
+            child: Text('No results found'),
+          );
+        }
+
+        return ListView.builder(
+          itemCount: searchResults.length,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          itemBuilder: (context, i) {
+            return GestureDetector(
+              onTap: () {
+                controller.createChannel(searchResults[i]);
+              },
+              child: Container(
+                  color: Colors.red,
+                  child: Text(searchResults[i].channelName ?? 'No name')),
+            );
+          },
+        );
+      }
+
+      return const SizedBox.shrink();
+    });
   }
 }

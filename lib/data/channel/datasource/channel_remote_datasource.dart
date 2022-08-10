@@ -1,4 +1,4 @@
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
@@ -10,7 +10,7 @@ abstract class ChannelRemoteDataSource {
 
   Future<List<ChannelEntity>> getMyChannels();
 
-  Future<ChannelEntity> getChannel(String channelId);
+  Future<ChannelEntity?> getChannel(String channelId);
 
   Future<List<ChannelEntity>> findChannel(String channelId);
 }
@@ -28,26 +28,35 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   @override
   Future<ChannelEntity> createChannel(String receiverId) async {
     final generatedChannelId = const Uuid().v4();
-    final ref = FirebaseDatabase.instance.ref('channels/$generatedChannelId');
+    // TODO: check channel exist here using firestore and receiverId
 
-    // TODO: check channel exist here
-
-    final currentUserId = _userLocalDataSource.getCurrentUserFast().id;
+    // Save chat in data store
+    // TODO: re consider should use firestore or firebase realtime db
     final newChannel = ChannelEntity(
       channelId: generatedChannelId,
       channelName: generatedChannelId,
       members: {receiverId: true, currentUserId: true},
     );
-    await ref.set(newChannel.toJson());
+    await FirebaseFirestore.instance
+        .collection('channels')
+        .doc(generatedChannelId)
+        .set(newChannel.toJson());
 
     // Add channels to users/channels
-    final userChannelValue = {generatedChannelId: true};
-    FirebaseDatabase.instance
-        .ref('users/channels/$currentUserId')
-        .update(userChannelValue);
-    FirebaseDatabase.instance
-        .ref('users/channels/$receiverId')
-        .update(userChannelValue);
+    // for current user
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('channels')
+        .doc(generatedChannelId)
+        .set(newChannel.toJson());
+    // for recipient
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(receiverId)
+        .collection('channels')
+        .doc(generatedChannelId)
+        .set(newChannel.toJson());
 
     // Create chat
     await _chatRemoteDataSource.createChat(generatedChannelId);
@@ -56,32 +65,55 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   }
 
   @override
-  Future<ChannelEntity> getChannel(String channelId) async {
-    final ref = FirebaseDatabase.instance.ref('channels/$channelId');
-    final refData = await ref.get() as Map<String, dynamic>;
-    return ChannelEntity.fromJson(refData);
+  Future<ChannelEntity?> getChannel(String channelId) async {
+    final ref =
+        FirebaseFirestore.instance.collection('channels').doc(channelId);
+    final snapshot = await ref.get();
+    if (snapshot.exists) {
+      return ChannelEntity.fromJson(snapshot.data()!);
+    } else {
+      return null;
+    }
   }
 
   @override
   Future<List<ChannelEntity>> getMyChannels() async {
-    final userChannelsRef = FirebaseDatabase.instance.ref('users/channels');
-    final data = (await userChannelsRef.get()).value;
-    final userChannelRefData = data as Map<String, dynamic>? ?? {};
+    final userChannelsRef = FirebaseFirestore.instance
+        .collection('users')
+        .doc(currentUserId)
+        .collection('channels');
+    final snapshot = await userChannelsRef.get();
     final channels = <ChannelEntity>[];
 
-    for (var channelId in userChannelRefData.keys) {
-      final channel = await getChannel(channelId);
-      channels.add(channel);
+    for (var doc in snapshot.docs) {
+      if (doc.exists) {
+        channels.add(ChannelEntity.fromJson(doc.data()));
+      }
     }
 
     return channels;
   }
 
-  // TODO: move to use firestore instead
   @override
   Future<List<ChannelEntity>> findChannel(String channelId) async {
-    final ref = FirebaseDatabase.instance.ref('channels');
-    // TODO: find a solution to implement this
-    return [];
+    final ref = FirebaseFirestore.instance
+        .collection('users')
+        .where('id', isEqualTo: channelId);
+
+    final refData = await ref.get();
+    if (refData.docs.isEmpty) {
+      return [];
+    }
+
+    final channels = <ChannelEntity>[];
+
+    final docSnapshotList = refData.docs;
+    for (var snapshot in docSnapshotList) {
+      if (snapshot.exists) {
+        channels.add(ChannelEntity.fromJson(snapshot.data()));
+      }
+    }
+
+    return channels;
   }
 }

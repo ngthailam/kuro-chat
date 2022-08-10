@@ -8,7 +8,7 @@ abstract class ChannelRepo {
 
   Future<List<ChannelEntity>> getMyChannels();
 
-  Future<ChannelEntity> getChannel(String channelId);
+  Future<ChannelEntity?> getChannel(String channelId);
 
   Future<List<ChannelEntity>> findChannel(String channelId);
 }
@@ -29,7 +29,7 @@ class ChannelRepoImpl extends ChannelRepo {
   }
 
   @override
-  Future<ChannelEntity> getChannel(String channelId) {
+  Future<ChannelEntity?> getChannel(String channelId) {
     return _channelRemoteDataSource.getChannel(channelId);
   }
 
@@ -41,6 +41,5 @@ class ChannelRepoImpl extends ChannelRepo {
   @override
   Future<List<ChannelEntity>> findChannel(String channelId) {
     return _channelRemoteDataSource.findChannel(channelId);
-
   }
 }

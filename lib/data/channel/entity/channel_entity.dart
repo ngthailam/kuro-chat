@@ -4,17 +4,20 @@ part 'channel_entity.g.dart';
 
 @JsonSerializable(explicitToJson: true)
 class ChannelEntity {
+  @JsonKey(name: 'id')
   final String channelId;
 
-  final String channelName;
+  @JsonKey(name: 'name')
+  final String? channelName;
 
   // Channel ids
-  final Map<String, bool> members;
+  @JsonKey(name: 'members', defaultValue: {})
+  final Map<String, bool>? members;
 
   ChannelEntity({
     required this.channelId,
-    this.channelName = '',
-    this.members = const {},
+    this.channelName,
+    this.members,
   });
 
   factory ChannelEntity.fromJson(Map<String, dynamic> json) =>
