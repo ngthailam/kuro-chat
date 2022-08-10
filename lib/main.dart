@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:kuro_chat/core/config/firebase_options.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
-import 'package:kuro_chat/presentation/page/home/home_controller.dart';
-import 'package:kuro_chat/presentation/page/home/home_page.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
 
 void main() async {

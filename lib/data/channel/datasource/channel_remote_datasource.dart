@@ -18,11 +18,9 @@ abstract class ChannelRemoteDataSource {
 
 @Injectable(as: ChannelRemoteDataSource)
 class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
-  final UserLocalDataSource _userLocalDataSource;
   final ChatRemoteDataSource _chatRemoteDataSource;
 
   ChannelRemoteDataSourceImpl(
-    this._userLocalDataSource,
     this._chatRemoteDataSource,
   );
 

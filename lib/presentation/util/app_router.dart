@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/routes/get_route.dart';
 import 'package:kuro_chat/presentation/page/auth/login/login_controller.dart';
 import 'package:kuro_chat/presentation/page/auth/login/login_page.dart';

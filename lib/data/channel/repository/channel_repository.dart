@@ -16,6 +16,7 @@ abstract class ChannelRepo {
 
 @Injectable(as: ChannelRepo)
 class ChannelRepoImpl extends ChannelRepo {
+  // ignore: unused_field
   final ChannelLocalDataSource _channelLocalDataSource;
   final ChannelRemoteDataSource _channelRemoteDataSource;
 
