@@ -18,11 +18,11 @@ class LoginController extends GetxController {
   final AuthRepo _authRepo = getIt();
 
   void login(String text) async {
-    try {
-      loginLoadState(LoadState.loading);
-      await _authRepo.logIn(text);
+    loginLoadState(LoadState.loading);
+    final isLoggedInSuccess = await _authRepo.logIn(text);
+    if (isLoggedInSuccess) {
       loginLoadState(LoadState.success);
-    } catch (e) {
+    } else {
       loginLoadState(LoadState.error);
     }
   }

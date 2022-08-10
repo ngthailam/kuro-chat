@@ -8,9 +8,12 @@ part 'user_entity.g.dart';
 class UserEntity {
   final String id;
 
-  // TODO: add user name here
+  final String name;
 
-  UserEntity({required this.id});
+  UserEntity({
+    required this.id,
+    required this.name,
+  });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) =>
       _$UserEntityFromJson(json);

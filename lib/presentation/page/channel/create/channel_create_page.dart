@@ -24,7 +24,7 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextField(
         onChanged: (text) {
-          controller.searchChannel(text);
+          controller.searchUser(text);
         },
       ),
     );
@@ -33,7 +33,7 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
   Widget _searchResults() {
     return Obx(() {
       final searchLoadState = controller.searchLoadState.value;
-      final searchResults = controller.searchResults;
+      final searchResults = controller.userSearchResults;
 
       if (searchLoadState == LoadState.loading && searchResults.isEmpty) {
         return const Center(
@@ -58,7 +58,7 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
               },
               child: Container(
                   color: Colors.red,
-                  child: Text(searchResults[i].channelName ?? 'No name')),
+                  child: Text(searchResults[i].name)),
             );
           },
         );

@@ -5,6 +5,8 @@ import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class UserRepo {
   Future<UserEntity?> fetchUser(String userId);
+
+  Future<List<UserEntity>> findByName(String name);
 }
 
 @Injectable(as: UserRepo)
@@ -20,5 +22,10 @@ class UserRepoImpl extends UserRepo {
     if (user == null) return null;
     await _localDataSource.saveCurrentUser(user);
     return user;
+  }
+
+  @override
+  Future<List<UserEntity>> findByName(String name) {
+    return _remoteDataSource.findByName(name);
   }
 }

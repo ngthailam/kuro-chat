@@ -33,7 +33,7 @@ class UserLocalDataSourceImpl extends UserLocalDataSource {
     if (userJsonString?.isNotEmpty != true) return null;
     final userEntity = UserEntity.fromJson(jsonDecode(userJsonString!));
     // Save for RAM cache when opened app already logged in
-    _user ??= userEntity;
+    _user = userEntity;
     return userEntity;
   }
 
@@ -41,6 +41,7 @@ class UserLocalDataSourceImpl extends UserLocalDataSource {
   Future<bool> saveCurrentUser(UserEntity user) async {
     final prefs = await SharedPreferences.getInstance();
     final userJsonString = jsonEncode(user.toJson());
+    _user = user;
     return prefs.setString(prefKeyCurrentUser, userJsonString);
   }
 }

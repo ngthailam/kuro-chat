@@ -103,7 +103,9 @@ class ChatPage extends GetView<ChatController> {
     return Obx(() {
       final messages = controller.messages;
 
-      if (messages.isEmpty) return const SizedBox.shrink();
+      if (messages.isEmpty) {
+        return const Expanded(child: SizedBox.shrink());
+      }
 
       final builder = ChatMessageListItemBuilder(
         messages: messages,

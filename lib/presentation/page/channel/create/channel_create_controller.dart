@@ -1,9 +1,12 @@
+import 'dart:developer';
+
 import 'package:get/get.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/core/utils/debouncer.dart';
 import 'package:kuro_chat/core/utils/load_state.dart';
-import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/channel/repository/channel_repository.dart';
+import 'package:kuro_chat/data/user/entity/user_entity.dart';
+import 'package:kuro_chat/data/user/repo/user_repository.dart';
 
 class ChannelCreateBindings extends Bindings {
   @override
@@ -14,10 +17,11 @@ class ChannelCreateBindings extends Bindings {
 
 class ChannelCreateController extends GetxController {
   final ChannelRepo _channelRepo = getIt();
+  final UserRepo _userRepo = getIt();
 
   final Debouncer _searchDebouncer = Debouncer();
 
-  RxList<ChannelEntity> searchResults = <ChannelEntity>[].obs;
+  RxList<UserEntity> userSearchResults = <UserEntity>[].obs;
   Rx<LoadState> searchLoadState = Rx<LoadState>(LoadState.none);
   Rx<LoadState> createLoadState = Rx<LoadState>(LoadState.none);
 
@@ -43,34 +47,35 @@ class ChannelCreateController extends GetxController {
     super.onClose();
   }
 
-  void searchChannel(String text) {
+  void searchUser(String text) {
     _searchDebouncer.run(() async {
       if (text.isEmpty) {
         searchLoadState(LoadState.success);
-        searchResults([]);
+        userSearchResults([]);
         return;
       }
 
       searchLoadState(LoadState.loading);
 
       try {
-        final result = await _channelRepo.findChannel(text);
+        final searchResults = await _userRepo.findByName(text);
         searchLoadState(LoadState.success);
-        searchResults(result);
+        userSearchResults(searchResults);
       } catch (e) {
         searchLoadState(LoadState.error);
       }
     });
   }
 
-  void createChannel(ChannelEntity searchResult) {
+  void createChannel(UserEntity receiver) async {
     createLoadState(LoadState.loading);
     try {
       // TODO: needs refactor and rename
       // TODO: add check if channel already exist or smt
-      _channelRepo.createChannel(searchResult.channelId);
+      await _channelRepo.createChannel(receiver);
       createLoadState(LoadState.success);
     } catch (e) {
+      log('Create channel error $e');
       createLoadState(LoadState.error);
     }
   }

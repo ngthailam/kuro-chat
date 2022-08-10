@@ -2,9 +2,10 @@ import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/datasource/channel_local_datasource.dart';
 import 'package:kuro_chat/data/channel/datasource/channel_remote_datasource.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
+import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class ChannelRepo {
-  Future<ChannelEntity> createChannel(String receiverId);
+  Future<ChannelEntity> createChannel(UserEntity receiver);
 
   Future<List<ChannelEntity>> getMyChannels();
 
@@ -24,8 +25,8 @@ class ChannelRepoImpl extends ChannelRepo {
   );
 
   @override
-  Future<ChannelEntity> createChannel(String receiverId) {
-    return _channelRemoteDataSource.createChannel(receiverId);
+  Future<ChannelEntity> createChannel(UserEntity receiver) {
+    return _channelRemoteDataSource.createChannel(receiver);
   }
 
   @override

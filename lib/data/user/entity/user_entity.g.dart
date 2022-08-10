@@ -9,6 +9,8 @@ part of 'user_entity.dart';
 abstract class _$UserEntityCWProxy {
   UserEntity id(String id);
 
+  UserEntity name(String name);
+
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserEntity(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
   /// Usage
@@ -17,6 +19,7 @@ abstract class _$UserEntityCWProxy {
   /// ````
   UserEntity call({
     String? id,
+    String? name,
   });
 }
 
@@ -30,6 +33,9 @@ class _$UserEntityCWProxyImpl implements _$UserEntityCWProxy {
   UserEntity id(String id) => this(id: id);
 
   @override
+  UserEntity name(String name) => this(name: name);
+
+  @override
 
   /// This function **does support** nullification of nullable fields. All `null` values passed to `non-nullable` fields will be ignored. You can also use `UserEntity(...).copyWith.fieldName(...)` to override fields one at a time with nullification support.
   ///
@@ -39,12 +45,17 @@ class _$UserEntityCWProxyImpl implements _$UserEntityCWProxy {
   /// ````
   UserEntity call({
     Object? id = const $CopyWithPlaceholder(),
+    Object? name = const $CopyWithPlaceholder(),
   }) {
     return UserEntity(
       id: id == const $CopyWithPlaceholder() || id == null
           ? _value.id
           // ignore: cast_nullable_to_non_nullable
           : id as String,
+      name: name == const $CopyWithPlaceholder() || name == null
+          ? _value.name
+          // ignore: cast_nullable_to_non_nullable
+          : name as String,
     );
   }
 }
@@ -60,9 +71,11 @@ extension $UserEntityCopyWith on UserEntity {
 
 UserEntity _$UserEntityFromJson(Map<String, dynamic> json) => UserEntity(
       id: json['id'] as String,
+      name: json['name'] as String,
     );
 
 Map<String, dynamic> _$UserEntityToJson(UserEntity instance) =>
     <String, dynamic>{
       'id': instance.id,
+      'name': instance.name,
     };

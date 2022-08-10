@@ -7,6 +7,7 @@ import 'package:kuro_chat/core/utils/load_state.dart';
 import 'package:kuro_chat/presentation/page/channel/list/channel_list_controller.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
 
+// TODO: add reload data when create success
 class ChannelListPage extends GetView<ChannelListController> {
   const ChannelListPage({Key? key}) : super(key: key);
 

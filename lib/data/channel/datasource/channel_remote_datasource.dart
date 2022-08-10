@@ -3,10 +3,11 @@ import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
+import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class ChannelRemoteDataSource {
-  Future<ChannelEntity> createChannel(String receiverId);
+  Future<ChannelEntity> createChannel(UserEntity receiver);
 
   Future<List<ChannelEntity>> getMyChannels();
 
@@ -26,7 +27,7 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   );
 
   @override
-  Future<ChannelEntity> createChannel(String receiverId) async {
+  Future<ChannelEntity> createChannel(UserEntity receiver) async {
     final generatedChannelId = const Uuid().v4();
     // TODO: check channel exist here using firestore and receiverId
 
@@ -34,8 +35,8 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     // TODO: re consider should use firestore or firebase realtime db
     final newChannel = ChannelEntity(
       channelId: generatedChannelId,
-      channelName: generatedChannelId,
-      members: {receiverId: true, currentUserId: true},
+      channelName: receiver.name,
+      members: {receiver.id: true, currentUserId: true},
     );
     await FirebaseFirestore.instance
         .collection('channels')
@@ -53,7 +54,7 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     // for recipient
     await FirebaseFirestore.instance
         .collection('users')
-        .doc(receiverId)
+        .doc(receiver.id)
         .collection('channels')
         .doc(generatedChannelId)
         .set(newChannel.toJson());

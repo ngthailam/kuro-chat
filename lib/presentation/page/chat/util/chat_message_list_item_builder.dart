@@ -30,15 +30,28 @@ class ChatMessageListItemBuilder {
   }
 
   ChatPosition _resolvePosition(int index) {
+    final item = messages[index];
+
     if (index == 0) {
-      return ChatPosition.last;
+      if (messages.length == 1) {
+        return ChatPosition.standalone;
+      }
+
+      if (messages[index + 1].senderId == item.senderId) {
+        return ChatPosition.last;
+      } else {
+        return ChatPosition.standalone;
+      }
     }
 
     if (index == messages.length - 1) {
-      return ChatPosition.first;
+      if (messages[index - 1].senderId == item.senderId) {
+        return ChatPosition.first;
+      } else {
+        return ChatPosition.standalone;
+      }
     }
 
-    final item = messages[index];
     final prevItem = messages[index - 1];
     final nextItem = messages[index + 1];
 

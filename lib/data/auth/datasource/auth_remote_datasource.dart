@@ -1,9 +1,9 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/user/datasource/user_remote_datasource.dart';
+import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class AuthRemoteDataSource {
-  Future<bool> logIn(String userId);
+  Future<UserEntity?> logIn(String userName);
 }
 
 @Injectable(as: AuthRemoteDataSource)
@@ -13,9 +13,8 @@ class AuthRemoteDataSourceImpl extends AuthRemoteDataSource {
   AuthRemoteDataSourceImpl(this._userRemoteDataSource);
 
   @override
-  Future<bool> logIn(String userId) async {
-    final user = await _userRemoteDataSource.fetchUser(userId);
-    // TODO: implement real later
-    return user != null;
+  Future<UserEntity?> logIn(String userName) async {
+    final user = await _userRemoteDataSource.fetchUserByName(userName);
+    return user;
   }
 }
