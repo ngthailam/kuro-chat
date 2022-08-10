@@ -23,7 +23,7 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
                 padding: EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   'Search channels',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
               ),
             ),

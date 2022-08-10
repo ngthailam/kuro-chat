@@ -41,13 +41,16 @@ class ChannelListPage extends GetView<ChannelListController> {
           alignment: Alignment.bottomLeft,
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text('Messages'),
+            child: Text(
+              'Messages',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ),
         ),
         const SizedBox(height: 16),
         Expanded(
           child: Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16).copyWith(bottom: 0),
             decoration: const BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.only(
@@ -63,42 +66,49 @@ class ChannelListPage extends GetView<ChannelListController> {
   }
 
   Widget _channelList() {
-    return Obx(() {
-      final channels = controller.channels;
-      final channelLoadState = controller.channelLoadState.value;
+    return Obx(
+      () {
+        final channels = controller.channels;
+        final channelLoadState = controller.channelLoadState.value;
+        if (channelLoadState == LoadState.loading && channels.isEmpty) {
+          return const Center(
+            child: CupertinoActivityIndicator(),
+          );
+        }
 
-      if (channelLoadState == LoadState.loading && channels.isEmpty) {
-        return const Center(
-          child: CupertinoActivityIndicator(),
+        if (channels.isNotEmpty) {
+          return ListView.separated(
+            itemCount: channels.length,
+            physics: const BouncingScrollPhysics(),
+            separatorBuilder: (context, i) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 64),
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: clrMint,
+                ),
+              );
+            },
+            itemBuilder: (context, i) {
+              return Padding(
+                key: ValueKey(channels[i].channelId),
+                padding: i == channels.length - 1
+                    ? const EdgeInsets.only(bottom: 82)
+                    : EdgeInsets.zero,
+                child: _channelItem(channels[i]),
+              );
+            },
+          );
+        }
+
+        return const Expanded(
+          child: SizedBox(
+            width: double.infinity,
+          ),
         );
-      }
-
-      if (channels.isNotEmpty) {
-        return ListView.separated(
-          itemCount: channels.length,
-          physics: const BouncingScrollPhysics(),
-          separatorBuilder: (context, i) {
-            return const Padding(
-              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 64),
-              child: Divider(
-                height: 1,
-                thickness: 1,
-                color: clrMint,
-              ),
-            );
-          },
-          itemBuilder: (context, i) {
-            return _channelItem(channels[i]);
-          },
-        );
-      }
-
-      return const Expanded(
-        child: SizedBox(
-          width: double.infinity,
-        ),
-      );
-    });
+      },
+    );
   }
 
   Widget _channelItem(ChannelEntity channel) {
