@@ -145,30 +145,12 @@ class ChannelListPage extends GetView<ChannelListController> {
       children: [
         Expanded(child: Text(channel.channelName ?? '')),
         const SizedBox(width: 16),
-        _unreadMessageBadge(2),
       ],
     );
   }
 
-  Widget _unreadMessageBadge(int unreadMessageCount) {
-    if (unreadMessageCount <= 0) return const SizedBox.shrink();
-    return Container(
-      decoration: const BoxDecoration(
-        color: clrLipStick,
-        shape: BoxShape.circle,
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
-      child: Text(
-        unreadMessageCount.toString(),
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 10,
-        ),
-      ),
-    );
-  }
-
   Widget _lastestMessage() {
+    // TODO: update to real color hex to use const
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -179,7 +161,10 @@ class ChannelListPage extends GetView<ChannelListController> {
           ),
         ),
         const SizedBox(width: 16),
-        const Text('10:00pm'),
+        Text(
+          '10:00pm',
+          style: TextStyle(color: Colors.black.withOpacity(0.4)),
+        ),
       ],
     );
   }

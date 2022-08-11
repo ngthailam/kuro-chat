@@ -12,6 +12,8 @@ import 'package:kuro_chat/data/channel/repository/channel_repository.dart';
 import 'package:kuro_chat/data/chat/entity/chat_extra_data_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/chat/repository/chat_repo.dart';
+import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
+import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 class ChatBindings extends Bindings {
@@ -58,6 +60,13 @@ class ChatController extends GetxController {
 
   void _initParams() {
     _channelId = Get.parameters['channelId'] ?? '';
+  }
+
+  bool isTargetOnline() {
+    final targetUserId = channel.value?.getUserIdOneOneChat;
+    if (targetUserId == null) return false;
+
+    return userStatusMap[targetUserId] == UserStatus.online;
   }
 
   Future _observeChat() async {

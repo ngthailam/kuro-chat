@@ -14,8 +14,6 @@ abstract class UserRemoteDataSource {
   Future<void> createUser(String userName);
 
   Future<List<UserEntity>> fetchByName(String name);
-
-  Future<bool> setUserStatus(UserStatus status);
 }
 
 @Injectable(as: UserRemoteDataSource)
@@ -76,20 +74,5 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
     }
 
     return results;
-  }
-
-  @override
-  Future<bool> setUserStatus(UserStatus status) async {
-    try {
-      await firestore
-          .collection('users')
-          .doc(currentUserId)
-          .update({'status': status.name});
-      log('set status ${status.name} successfulyy');
-      return true;
-    } catch (e) {
-      log('set status error $e');
-      return false;
-    }
   }
 }

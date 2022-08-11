@@ -4,6 +4,8 @@ import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/core/utils/load_state.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/channel/repository/channel_repository.dart';
+import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
+import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 
 class ChannelListBindings extends Bindings {
   @override
@@ -21,7 +23,15 @@ class ChannelListController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    _updateUserStatus();
     _fetchMyChannels();
+  }
+
+  // For cases when open app first time, whether logged in or not, they will
+  // navigate to this screen
+  // When app is in background -> to foreground, MyApp already handle this
+  void _updateUserStatus() {
+    getIt<MetaDataRepo>().setUserStatus(UserStatus.online);
   }
 
   void _fetchMyChannels() async {

@@ -54,7 +54,7 @@ class ChatPage extends GetView<ChatController> {
                   child: const Center(child: Text('GR')),
                 ),
                 const SizedBox(width: 16),
-                _headerNameAndMember(channel),
+                _headerName(channel),
                 const Icon(Icons.more_vert, size: 20),
               ],
             ),
@@ -80,7 +80,7 @@ class ChatPage extends GetView<ChatController> {
     );
   }
 
-  Widget _headerNameAndMember(ChannelEntity channel) {
+  Widget _headerName(ChannelEntity channel) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -92,14 +92,46 @@ class ChatPage extends GetView<ChatController> {
             overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 4),
-          Text(
-            channel.members?.isNotEmpty == true
-                ? '${channel.members?.keys.length} members'
-                : '',
-            style: TextStyle(color: Colors.black.withOpacity(0.5)),
-          )
+          _headerNameSubtitle(channel),
         ],
       ),
+    );
+  }
+
+  Widget _headerNameSubtitle(ChannelEntity channel) {
+    if (channel.members?.isNotEmpty != true) {
+      return const SizedBox.shrink();
+    }
+
+    final isTargetOnline = controller.isTargetOnline();
+    if (channel.isOneOneChat) {
+      return Row(
+        children: [
+          Container(
+            height: 8,
+            width: 8,
+            decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isTargetOnline
+                    ? const Color(0xff48d86d)
+                    : const Color(0xffd40f5f)),
+          ),
+          const SizedBox(width: 4),
+          Text(
+            isTargetOnline ? 'Online' : 'Offline',
+            style: TextStyle(
+              color: Colors.black.withOpacity(0.5),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Text(
+      channel.members?.isNotEmpty == true
+          ? '${channel.members?.keys.length} members'
+          : '',
+      style: TextStyle(color: Colors.black.withOpacity(0.5)),
     );
   }
 
@@ -175,8 +207,12 @@ class ChatPage extends GetView<ChatController> {
               color: clrCornFlower,
             ),
             onPressed: () {
-              controller.sendMessage(_textController.text);
+              // TODO: typing text dissapear too slow
+              // even after message is sent
+              final text = _textController.text;
               _textController.text = '';
+              controller.onTypeChat('');
+              controller.sendMessage(text);
             },
           ),
         ],

@@ -9,8 +9,6 @@ abstract class UserRepo {
   Future<UserEntity?> refreshCurrentUser();
 
   Future<List<UserEntity>> fetchByName(String name);
-
-  Future<bool> setUserStatus(UserStatus status);
 }
 
 @Injectable(as: UserRepo)
@@ -36,10 +34,5 @@ class UserRepoImpl extends UserRepo {
   @override
   Future<UserEntity?> refreshCurrentUser() {
     return fetchUser(currentUserId);
-  }
-
-  @override
-  Future<bool> setUserStatus(UserStatus status) {
-    return _remoteDataSource.setUserStatus(status);
   }
 }

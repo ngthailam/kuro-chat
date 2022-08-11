@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 part 'channel_entity.g.dart';
 
@@ -19,6 +20,13 @@ class ChannelEntity {
     this.channelName,
     this.members,
   });
+
+  bool get isOneOneChat => members?.length == 2;
+
+  String? get getUserIdOneOneChat {
+    if (!isOneOneChat) return null;
+    return members?.keys.firstWhere((element) => element != currentUserId);
+  }
 
   factory ChannelEntity.fromJson(Map<String, dynamic> json) =>
       _$ChannelEntityFromJson(json);
