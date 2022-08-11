@@ -2,6 +2,7 @@ import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_local_datasource.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
 import 'package:kuro_chat/data/chat/entity/chat_entity.dart';
+import 'package:kuro_chat/data/chat/entity/chat_extra_data_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
@@ -11,6 +12,10 @@ abstract class ChatRepo {
   Future sendMessage(String channelId, String text);
 
   Stream<List<ChatMessageEntity>> observeMessages(String channelId);
+
+  Stream<ChatExtraDataEntity> observeExtraData(String channelId);
+
+  Future<bool> setIsTyping(String channelId, bool isTyping);
 }
 
 @Injectable(as: ChatRepo)
@@ -31,15 +36,33 @@ class ChatRepoImpl extends ChatRepo {
   @override
   Future sendMessage(String channelId, String text) {
     return _chatRemoteDataSource.sendMessage(
-      channelId: channelId,
-      text: text,
-      senderId: currentUser!.id,
-      senderName: currentUser!.id // TODO: update to user name when has name
-    );
+        channelId: channelId,
+        text: text,
+        senderId: currentUser!.id,
+        senderName: currentUser!.id // TODO: update to user name when has name
+        );
   }
 
   @override
   Stream<List<ChatMessageEntity>> observeMessages(String channelId) {
     return _chatRemoteDataSource.observeMessages(channelId);
+  }
+
+  @override
+  Stream<ChatExtraDataEntity> observeExtraData(String channelId) {
+    return _chatRemoteDataSource.observeExtraData(channelId);
+  }
+
+  @override
+  Future<bool> setIsTyping(String channelId, bool isTyping) async {
+    final isTypingLocal = _chatLocalDataSource.getIsTyping(channelId);
+    if (isTyping == isTypingLocal) {
+      return true;
+    }
+
+    await _chatRemoteDataSource.setIsTyping(channelId, isTyping);
+    _chatLocalDataSource.setIsTyping(channelId, isTyping);
+
+    return true;
   }
 }

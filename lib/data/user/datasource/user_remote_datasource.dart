@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
+import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,7 +13,9 @@ abstract class UserRemoteDataSource {
 
   Future<void> createUser(String userName);
 
-  Future<List<UserEntity>> findByName(String name);
+  Future<List<UserEntity>> fetchByName(String name);
+
+  Future<bool> setUserStatus(UserStatus status);
 }
 
 @Injectable(as: UserRemoteDataSource)
@@ -62,7 +65,7 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
   }
 
   @override
-  Future<List<UserEntity>> findByName(String name) async {
+  Future<List<UserEntity>> fetchByName(String name) async {
     final docRef = firestore.collection('users').where('name', isEqualTo: name);
     final snapshot = await docRef.get();
     final results = <UserEntity>[];
@@ -73,5 +76,20 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
     }
 
     return results;
+  }
+
+  @override
+  Future<bool> setUserStatus(UserStatus status) async {
+    try {
+      await firestore
+          .collection('users')
+          .doc(currentUserId)
+          .update({'status': status.name});
+      log('set status ${status.name} successfulyy');
+      return true;
+    } catch (e) {
+      log('set status error $e');
+      return false;
+    }
   }
 }

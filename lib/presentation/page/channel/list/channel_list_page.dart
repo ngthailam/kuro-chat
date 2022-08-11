@@ -102,10 +102,9 @@ class ChannelListPage extends GetView<ChannelListController> {
           );
         }
 
-        return const Expanded(
-          child: SizedBox(
-            width: double.infinity,
-          ),
+        return const SizedBox(
+          height: double.infinity,
+          width: double.infinity,
         );
       },
     );

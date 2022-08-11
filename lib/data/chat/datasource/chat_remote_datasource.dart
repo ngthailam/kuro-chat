@@ -1,10 +1,14 @@
 import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/chat/entity/chat_entity.dart';
+import 'package:kuro_chat/data/chat/entity/chat_extra_data_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
+import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 abstract class ChatRemoteDataSource {
   Stream<List<ChatMessageEntity>> observeMessages(String channelId);
+
+  Stream<ChatExtraDataEntity> observeExtraData(String channelId);
 
   Future<ChatEntity> getChat(String channelId);
 
@@ -18,6 +22,8 @@ abstract class ChatRemoteDataSource {
   });
 
   Future<bool> deleteMessage(String channelId, String messageId);
+
+  Future<bool> setIsTyping(String channelId, bool isTyping);
 }
 
 @Injectable(as: ChatRemoteDataSource)
@@ -39,6 +45,22 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
 
       return messages
         ..sort((a, b) => b.createTimeEpoch.compareTo(a.createTimeEpoch));
+    });
+  }
+
+  @override
+  Stream<ChatExtraDataEntity> observeExtraData(String channelId) {
+    final ref = FirebaseDatabase.instance.ref('chat/$channelId/extra');
+    return ref.onValue.map((event) {
+      final snapshot = event.snapshot;
+      if (!snapshot.exists) {
+        return const ChatExtraDataEntity();
+      }
+      final extraData = ChatExtraDataEntity.fromJson(
+        Map<String, dynamic>.from(snapshot.value as Map),
+      );
+
+      return extraData;
     });
   }
 
@@ -103,6 +125,17 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
 
     try {
       await ref.remove();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> setIsTyping(String channelId, bool isTyping) async {
+    final ref = FirebaseDatabase.instance.ref('chat/$channelId/extra/isTyping');
+    try {
+      await ref.update({currentUserId: isTyping});
       return true;
     } catch (e) {
       return false;

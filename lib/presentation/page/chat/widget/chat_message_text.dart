@@ -35,6 +35,7 @@ class ChatMessageTextArg {
   }
 }
 
+// TODO: change color sender name + chat background for chat target
 class ChatMessageText extends StatelessWidget {
   const ChatMessageText({Key? key, required this.inputArg}) : super(key: key);
 
@@ -111,12 +112,16 @@ class ChatMessageText extends StatelessWidget {
   }
 
   Widget _senderName() {
-    if (inputArg.isSender || inputArg.senderName.isEmpty) {
-      return const SizedBox.shrink();
+    final isPositionShowSender = inputArg.position == ChatPosition.first ||
+        inputArg.position == ChatPosition.standalone;
+    final shouldShowSenderName =
+        !inputArg.isSender && inputArg.senderName.isNotEmpty;
+    if (shouldShowSenderName && isPositionShowSender) {
+      return Text(
+        inputArg.senderName,
+        style: const TextStyle(color: clrBlessHighList),
+      );
     }
-    return Text(
-      inputArg.senderName,
-      style: const TextStyle(color: clrBless),
-    );
+    return const SizedBox.shrink();
   }
 }

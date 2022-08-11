@@ -6,7 +6,11 @@ import 'package:kuro_chat/data/user/entity/user_entity.dart';
 abstract class UserRepo {
   Future<UserEntity?> fetchUser(String userId);
 
-  Future<List<UserEntity>> findByName(String name);
+  Future<UserEntity?> refreshCurrentUser();
+
+  Future<List<UserEntity>> fetchByName(String name);
+
+  Future<bool> setUserStatus(UserStatus status);
 }
 
 @Injectable(as: UserRepo)
@@ -25,7 +29,17 @@ class UserRepoImpl extends UserRepo {
   }
 
   @override
-  Future<List<UserEntity>> findByName(String name) {
-    return _remoteDataSource.findByName(name);
+  Future<List<UserEntity>> fetchByName(String name) {
+    return _remoteDataSource.fetchByName(name);
+  }
+
+  @override
+  Future<UserEntity?> refreshCurrentUser() {
+    return fetchUser(currentUserId);
+  }
+
+  @override
+  Future<bool> setUserStatus(UserStatus status) {
+    return _remoteDataSource.setUserStatus(status);
   }
 }

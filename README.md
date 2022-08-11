@@ -10,12 +10,9 @@ A simple chat application with the purpose to improve and practice my programmin
 
 
 ### Enhancements
-- Update channel list UI
-    - Update list UI
-    - Update Fab
-- Update search channel UI
 - Add online/offline status
 - Chat 1-1, change member title to online/offline status
+- Update Register/Login screen
 
 ### Bugs
 

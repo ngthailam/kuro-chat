@@ -14,7 +14,7 @@ class BubbleDecorationBuilder {
     // TODO: add cache to improve performance
     final boxDecoration = BoxDecoration(
       borderRadius: getBorderRadius(),
-      color: isSender ? clrCornFlower : clrGrayLight,
+      color: isSender ? clrCornFlower : clrGrayLighter,
     );
 
     return boxDecoration;

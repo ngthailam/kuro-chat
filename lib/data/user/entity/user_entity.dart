@@ -10,9 +10,12 @@ class UserEntity {
 
   final String name;
 
-  UserEntity({
+  final UserStatus? status;
+
+  const UserEntity({
     required this.id,
     required this.name,
+    this.status,
   });
 
   factory UserEntity.fromJson(Map<String, dynamic> json) =>
@@ -20,3 +23,6 @@ class UserEntity {
 
   Map<String, dynamic> toJson() => _$UserEntityToJson(this);
 }
+
+@JsonEnum()
+enum UserStatus { offline, online }

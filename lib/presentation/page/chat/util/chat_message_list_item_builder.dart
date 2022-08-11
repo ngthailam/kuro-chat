@@ -1,24 +1,38 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
+import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/chat/util/bubble_decoration_builder.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/chat_message_text.dart';
 
 class ChatMessageListItemBuilder {
   final List<ChatMessageEntity> messages;
   final String currentUserId;
+  final bool isTargetTyping;
 
   ChatMessageListItemBuilder({
     required this.messages,
     required this.currentUserId,
+    required this.isTargetTyping,
   });
 
-  Widget build(int index) {
-    final messageItem = messages[index];
+  late int messageIndexOffset = isTargetTyping ? -1 : 0;
+
+  Widget build({required int itemIndex}) {
+    log('build - $isTargetTyping - $messageIndexOffset');
+    if (isTargetTyping && itemIndex == 0) {
+      return _isTypingBox();
+    }
+
+    final messageIndex = itemIndex + messageIndexOffset;
+    final messageItem = messages[messageIndex];
+
     switch (messageItem.type) {
       case chatTypeMessage:
         final inputArg = ChatMessageTextArg.from(
           message: messageItem,
-          position: _resolvePosition(index),
+          position: _resolvePosition(messageIndex),
         );
         return ChatMessageText(
           key: ValueKey(messageItem.createTimeEpoch),
@@ -27,6 +41,22 @@ class ChatMessageListItemBuilder {
       default:
         return const SizedBox.shrink();
     }
+  }
+
+  Widget _isTypingBox() {
+    // TODO: add animation
+    return Align(
+      alignment: Alignment.bottomLeft,
+      child: Container(
+        height: 28,
+        width: 56,
+        decoration: BoxDecoration(
+            color: clrGrayLighter, borderRadius: BorderRadius.circular(16)),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        margin: const EdgeInsets.only(left: 58),
+        child: const Center(child: Icon(Icons.more_horiz, size: 24)),
+      ),
+    );
   }
 
   ChatPosition _resolvePosition(int index) {

@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
@@ -16,12 +18,14 @@ class ChatPage extends GetView<ChatController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          _channelHeader(),
-          _chat(),
-          _chatInput(),
-        ],
+      body: SafeArea(
+        child: Column(
+          children: [
+            _channelHeader(),
+            _chat(),
+            _chatInput(),
+          ],
+        ),
       ),
     );
   }
@@ -51,7 +55,7 @@ class ChatPage extends GetView<ChatController> {
                 ),
                 const SizedBox(width: 16),
                 _headerNameAndMember(channel),
-                const Icon(Icons.menu, size: 20),
+                const Icon(Icons.more_vert, size: 20),
               ],
             ),
           ),
@@ -102,6 +106,10 @@ class ChatPage extends GetView<ChatController> {
   Widget _chat() {
     return Obx(() {
       final messages = controller.messages;
+      final isTargetTyping = controller.isTargetTyping.value;
+      final itemLength = messages.length + (isTargetTyping ? 1 : 0);
+
+      log("_chat isTargetTyping=$isTargetTyping || _itemLength=$itemLength");
 
       if (messages.isEmpty) {
         return const Expanded(child: SizedBox.shrink());
@@ -110,6 +118,7 @@ class ChatPage extends GetView<ChatController> {
       final builder = ChatMessageListItemBuilder(
         messages: messages,
         currentUserId: currentUserId,
+        isTargetTyping: isTargetTyping,
       );
 
       return Expanded(
@@ -118,10 +127,10 @@ class ChatPage extends GetView<ChatController> {
           addAutomaticKeepAlives: false,
           physics: const BouncingScrollPhysics(),
           reverse: true,
-          itemCount: messages.length,
+          itemCount: itemLength,
           separatorBuilder: (context, i) => const SizedBox(height: 4),
           itemBuilder: (context, i) {
-            return builder.build(i);
+            return builder.build(itemIndex: i);
           },
         ),
       );
@@ -152,6 +161,9 @@ class ChatPage extends GetView<ChatController> {
             child: TextField(
               decoration: const InputDecoration.collapsed(hintText: 'Message'),
               controller: _textController,
+              onChanged: (text) {
+                controller.onTypeChat(text);
+              },
             ),
           ),
           IconButton(

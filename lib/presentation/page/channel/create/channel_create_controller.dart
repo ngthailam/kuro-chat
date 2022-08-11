@@ -58,7 +58,7 @@ class ChannelCreateController extends GetxController {
       searchLoadState(LoadState.loading);
 
       try {
-        final searchResults = await _userRepo.findByName(text);
+        final searchResults = await _userRepo.fetchByName(text);
         searchLoadState(LoadState.success);
         userSearchResults(searchResults);
       } catch (e) {
