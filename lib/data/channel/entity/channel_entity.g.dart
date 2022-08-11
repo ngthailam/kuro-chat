@@ -14,6 +14,10 @@ ChannelEntity _$ChannelEntityFromJson(Map<String, dynamic> json) =>
             (k, e) => MapEntry(k, e as bool),
           ) ??
           {},
+      lastMessage: json['lastMessage'] == null
+          ? null
+          : ChannelLastMessageEntity.fromJson(
+              json['lastMessage'] as Map<String, dynamic>),
     );
 
 Map<String, dynamic> _$ChannelEntityToJson(ChannelEntity instance) =>
@@ -21,4 +25,19 @@ Map<String, dynamic> _$ChannelEntityToJson(ChannelEntity instance) =>
       'id': instance.channelId,
       'name': instance.channelName,
       'members': instance.members,
+      'lastMessage': instance.lastMessage?.toJson(),
+    };
+
+ChannelLastMessageEntity _$ChannelLastMessageEntityFromJson(
+        Map<String, dynamic> json) =>
+    ChannelLastMessageEntity(
+      text: json['text'] as String?,
+      createTimeEpoch: json['createTimeEpoch'] as int?,
+    );
+
+Map<String, dynamic> _$ChannelLastMessageEntityToJson(
+        ChannelLastMessageEntity instance) =>
+    <String, dynamic>{
+      'text': instance.text,
+      'createTimeEpoch': instance.createTimeEpoch,
     };

@@ -15,10 +15,14 @@ class ChannelEntity {
   @JsonKey(name: 'members', defaultValue: {})
   final Map<String, bool>? members;
 
+  @JsonKey(name: 'lastMessage')
+  final ChannelLastMessageEntity? lastMessage;
+
   ChannelEntity({
     required this.channelId,
     this.channelName,
     this.members,
+    this.lastMessage,
   });
 
   bool get isOneOneChat => members?.length == 2;
@@ -32,4 +36,21 @@ class ChannelEntity {
       _$ChannelEntityFromJson(json);
 
   Map<String, dynamic> toJson() => _$ChannelEntityToJson(this);
+}
+
+@JsonSerializable()
+class ChannelLastMessageEntity {
+  final String? text;
+
+  final int? createTimeEpoch;
+
+  ChannelLastMessageEntity({
+    required this.text,
+    required this.createTimeEpoch,
+  });
+
+  factory ChannelLastMessageEntity.fromJson(Map<String, dynamic> json) =>
+      _$ChannelLastMessageEntityFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ChannelLastMessageEntityToJson(this);
 }

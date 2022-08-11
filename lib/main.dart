@@ -4,7 +4,6 @@ import 'package:kuro_chat/core/config/firebase_options.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
 import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
-import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
 
 void main() async {

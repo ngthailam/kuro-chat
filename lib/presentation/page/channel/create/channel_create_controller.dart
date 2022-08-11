@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:get/get.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
 import 'package:kuro_chat/core/utils/debouncer.dart';
@@ -75,7 +73,7 @@ class ChannelCreateController extends GetxController {
       await _channelRepo.createChannel(receiver);
       createLoadState(LoadState.success);
     } catch (e) {
-      log('Create channel error $e');
+      print('Create channel error $e');
       createLoadState(LoadState.error);
     }
   }

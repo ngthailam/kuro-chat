@@ -8,6 +8,7 @@ import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/channel/list/channel_list_controller.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
+import 'package:kuro_chat/presentation/util/date_util.dart';
 import 'package:kuro_chat/presentation/widget/custom_circle_avatar.dart';
 
 // TODO: add reload data when create success
@@ -131,7 +132,7 @@ class ChannelListPage extends GetView<ChannelListController> {
               children: [
                 _nameAndStatus(channel),
                 const SizedBox(height: 4),
-                _lastestMessage(),
+                _lastestMessage(channel),
               ],
             ),
           )
@@ -149,22 +150,28 @@ class ChannelListPage extends GetView<ChannelListController> {
     );
   }
 
-  Widget _lastestMessage() {
+  Widget _lastestMessage(ChannelEntity channel) {
     // TODO: update to real color hex to use const
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
           child: Text(
-            'latest message',
+            channel.lastMessage?.text ?? 'Start your conversation',
             style: TextStyle(color: Colors.black.withOpacity(0.4)),
           ),
         ),
         const SizedBox(width: 16),
-        Text(
-          '10:00pm',
-          style: TextStyle(color: Colors.black.withOpacity(0.4)),
-        ),
+        channel.lastMessage?.createTimeEpoch == null
+            ? const SizedBox.shrink()
+            : Text(
+                MyDateUtils.fromMillisEpochToTime(
+                  channel.lastMessage!.createTimeEpoch!,
+                ),
+                style: TextStyle(
+                  color: Colors.black.withOpacity(0.4),
+                ),
+              ),
       ],
     );
   }

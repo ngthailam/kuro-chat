@@ -12,6 +12,12 @@ abstract class ChannelRepo {
   Future<ChannelEntity?> getChannel(String channelId);
 
   Future<List<ChannelEntity>> findChannel(String channelId);
+
+  Future updateLastMessage({
+    required String channelId,
+    required String text,
+    required int createTimeEpoch,
+  });
 }
 
 @Injectable(as: ChannelRepo)
@@ -39,9 +45,22 @@ class ChannelRepoImpl extends ChannelRepo {
   Future<List<ChannelEntity>> getMyChannels() {
     return _channelRemoteDataSource.getMyChannels();
   }
-  
+
   @override
   Future<List<ChannelEntity>> findChannel(String channelId) {
     return _channelRemoteDataSource.findChannel(channelId);
+  }
+
+  @override
+  Future updateLastMessage({
+    required String channelId,
+    required String text,
+    required int createTimeEpoch,
+  }) {
+    return _channelRemoteDataSource.updateLastMessage(
+      channelId: channelId,
+      text: text,
+      createTimeEpoch: createTimeEpoch,
+    );
   }
 }

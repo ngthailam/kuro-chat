@@ -14,7 +14,7 @@ abstract class ChatRemoteDataSource {
 
   Future<ChatEntity> createChat(String channelId);
 
-  Future<bool> sendMessage({
+  Future<ChatMessageEntity> sendMessage({
     required String channelId,
     required String text,
     required String senderId,
@@ -89,7 +89,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }
 
   @override
-  Future<bool> sendMessage({
+  Future<ChatMessageEntity> sendMessage({
     required String channelId,
     required String text,
     required String senderId,
@@ -99,7 +99,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
         text.isEmpty ||
         senderId.isEmpty ||
         senderName.isEmpty) {
-      return false;
+      throw Exception('Invalid arguments');
     }
 
     final nowEpoch = DateTime.now().millisecondsSinceEpoch;
@@ -115,7 +115,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
 
     // Add try catch
     await ref.update(newChatMessage.toJson());
-    return true;
+    return newChatMessage;
   }
 
   @override

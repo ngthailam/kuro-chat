@@ -1,4 +1,5 @@
 import 'package:injectable/injectable.dart';
+import 'package:kuro_chat/data/channel/datasource/channel_remote_datasource.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_local_datasource.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
 import 'package:kuro_chat/data/chat/entity/chat_entity.dart';
@@ -22,10 +23,12 @@ abstract class ChatRepo {
 class ChatRepoImpl extends ChatRepo {
   final ChatLocalDataSource _chatLocalDataSource;
   final ChatRemoteDataSource _chatRemoteDataSource;
+  final ChannelRemoteDataSource _channelRemoteDataSource;
 
   ChatRepoImpl(
     this._chatLocalDataSource,
     this._chatRemoteDataSource,
+    this._channelRemoteDataSource,
   );
 
   @override
@@ -34,13 +37,22 @@ class ChatRepoImpl extends ChatRepo {
   }
 
   @override
-  Future sendMessage(String channelId, String text) {
-    return _chatRemoteDataSource.sendMessage(
-      channelId: channelId,
-      text: text,
-      senderId: currentUser!.id,
-      senderName: currentUser!.name,
-    );
+  Future sendMessage(String channelId, String text) async {
+    try {
+      final message = await _chatRemoteDataSource.sendMessage(
+        channelId: channelId,
+        text: text,
+        senderId: currentUser!.id,
+        senderName: currentUser!.name,
+      );
+      _channelRemoteDataSource.updateLastMessage(
+        channelId: channelId,
+        text: text,
+        createTimeEpoch: message.createTimeEpoch,
+      );
+    } catch (e) {
+      return;
+    }
   }
 
   @override

@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
+import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
@@ -14,6 +15,12 @@ abstract class ChannelRemoteDataSource {
   Future<ChannelEntity?> getChannel(String channelId);
 
   Future<List<ChannelEntity>> findChannel(String channelId);
+
+  Future updateLastMessage({
+    required String channelId,
+    required String text,
+    required int createTimeEpoch,
+  });
 }
 
 @Injectable(as: ChannelRemoteDataSource)
@@ -27,32 +34,22 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   @override
   Future<ChannelEntity> createChannel(UserEntity receiver) async {
     final generatedChannelId = const Uuid().v4();
-    // TODO: check channel exist here using firestore and receiverId
+    final existingChannelRef = FirebaseFirestore.instance
+        .collection('channels')
+        .where('members.${receiver.id}', isEqualTo: true);
+    final snapshot = (await existingChannelRef.get()).docs;
+
+    if (snapshot.isNotEmpty) {
+      throw Exception('Channel already exist');
+    }
 
     // Save chat in data store
-    // TODO: re consider should use firestore or firebase realtime db
     final newChannel = ChannelEntity(
       channelId: generatedChannelId,
       channelName: receiver.name,
       members: {receiver.id: true, currentUserId: true},
     );
     await FirebaseFirestore.instance
-        .collection('channels')
-        .doc(generatedChannelId)
-        .set(newChannel.toJson());
-
-    // Add channels to users/channels
-    // for current user
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('channels')
-        .doc(generatedChannelId)
-        .set(newChannel.toJson());
-    // for recipient
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(receiver.id)
         .collection('channels')
         .doc(generatedChannelId)
         .set(newChannel.toJson());
@@ -78,9 +75,8 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   @override
   Future<List<ChannelEntity>> getMyChannels() async {
     final userChannelsRef = FirebaseFirestore.instance
-        .collection('users')
-        .doc(currentUserId)
-        .collection('channels');
+        .collection('channels')
+        .where('members.$currentUserId', isEqualTo: true);
     final snapshot = await userChannelsRef.get();
     final channels = <ChannelEntity>[];
 
@@ -114,5 +110,19 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     }
 
     return channels;
+  }
+
+  @override
+  Future updateLastMessage({
+    required String channelId,
+    required String text,
+    required int createTimeEpoch,
+  }) {
+    final lastMessage =
+        ChannelLastMessageEntity(createTimeEpoch: createTimeEpoch, text: text);
+    return FirebaseFirestore.instance
+        .collection('channels')
+        .doc(channelId)
+        .update({'lastMessage': lastMessage.toJson()});
   }
 }
