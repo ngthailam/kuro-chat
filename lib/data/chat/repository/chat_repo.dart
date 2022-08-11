@@ -36,11 +36,11 @@ class ChatRepoImpl extends ChatRepo {
   @override
   Future sendMessage(String channelId, String text) {
     return _chatRemoteDataSource.sendMessage(
-        channelId: channelId,
-        text: text,
-        senderId: currentUser!.id,
-        senderName: currentUser!.id // TODO: update to user name when has name
-        );
+      channelId: channelId,
+      text: text,
+      senderId: currentUser!.id,
+      senderName: currentUser!.name,
+    );
   }
 
   @override
