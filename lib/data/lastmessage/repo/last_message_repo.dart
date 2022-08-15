@@ -3,7 +3,7 @@ import 'package:kuro_chat/data/lastmessage/datasource/last_message_local_datasou
 import 'package:kuro_chat/data/lastmessage/datasource/last_message_remote_datasource.dart';
 
 abstract class LastMessageRepo {
-  void setLastRead(String channelId, int lastMessageCreateTimeEpoch);
+  Future setLastRead(String channelId, int lastMessageCreateTimeEpoch);
 
   int? getByChannelId(String channelId);
 
@@ -13,6 +13,8 @@ abstract class LastMessageRepo {
 
   Future clear();
 }
+
+bool _isPopulated = false;
 
 @Injectable(as: LastMessageRepo)
 class LastMessageRepoImpl extends LastMessageRepo {
@@ -32,24 +34,27 @@ class LastMessageRepoImpl extends LastMessageRepo {
     final localLastMessageData = _lastMessageLocalDataSource.getAll();
     // TODO: optimize by seeting a flag when data change,
     // and only call this line if that flag is true
-    await _lastMessageRemoteDataSource.updateUserLastMessage(
-        lastMessageRead: localLastMessageData);
-    return _lastMessageLocalDataSource.persist();
+    return _lastMessageRemoteDataSource.updateUserLastMessage(
+      lastMessageRead: localLastMessageData,
+    );
   }
 
   @override
   Future populdateData() async {
+    if (_isPopulated) return;
+    _isPopulated = true;
     final lastMessageData =
         await _lastMessageRemoteDataSource.getUserLastMessage();
     await _lastMessageLocalDataSource.save(
         lastMessageReadData: lastMessageData);
-    return _lastMessageLocalDataSource.populateRamCache();
+    return _lastMessageLocalDataSource.populateRamFromDb();
   }
 
   @override
-  void setLastRead(String channelId, int lastMessageCreateTimeEpoch) {
-    return _lastMessageLocalDataSource
-        .update(lastMessageReadData: {channelId: lastMessageCreateTimeEpoch});
+  Future setLastRead(String channelId, int lastMessageCreateTimeEpoch) {
+    return _lastMessageLocalDataSource.save(
+      lastMessageReadData: {channelId: lastMessageCreateTimeEpoch},
+    );
   }
 
   @override

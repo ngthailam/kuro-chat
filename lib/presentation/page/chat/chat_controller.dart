@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
@@ -16,6 +15,7 @@ import 'package:kuro_chat/data/lastmessage/repo/last_message_repo.dart';
 import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
 import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
+import 'package:kuro_chat/presentation/page/chat/util/chat_message_list_item_builder.dart';
 
 class ChatBindings extends Bindings {
   @override
@@ -44,7 +44,9 @@ class ChatController extends GetxController {
   final Debouncer _chatTypeDebouncer =
       Debouncer(duration: const Duration(milliseconds: 500));
 
-  int _lastReadMessageCreateTimeEpoch = 0;
+  final builder = ChatMessageListItemBuilder(
+    currentUserId: currentUserId,
+  );
 
   @override
   void onReady() {
@@ -65,6 +67,9 @@ class ChatController extends GetxController {
 
   void _initParams() {
     _channelId = Get.parameters['channelId'] ?? '';
+    builder.setLastMessageReadTimeEpoch(
+      _lastMessageRepo.getByChannelId(_channelId),
+    );
   }
 
   bool isTargetOnline() {
@@ -77,14 +82,9 @@ class ChatController extends GetxController {
   Future _observeChat() async {
     _streamSubscription =
         _chatRepo.observeMessages(_channelId).listen((chatMessages) {
-      if (chatMessages.isNotEmpty) {
-        final msgCreateTimeEpoch = chatMessages.first.createTimeEpoch;
-        if (_lastReadMessageCreateTimeEpoch != msgCreateTimeEpoch) {
-          _lastMessageRepo.setLastRead(_channelId, msgCreateTimeEpoch);
-          _lastReadMessageCreateTimeEpoch = msgCreateTimeEpoch;
-        }
-      }
+      builder.setMessages(chatMessages);
       messages(chatMessages);
+      setHasReadAllUnreads();
     });
   }
 
@@ -113,7 +113,18 @@ class ChatController extends GetxController {
           .toList();
 
       // Set to update UI
-      isTargetTyping(typingMemberIds.isNotEmpty);
+      final isTyping = typingMemberIds.isNotEmpty;
+      builder.setIsTargetTyping(isTyping);
+      isTargetTyping(isTyping);
     });
+  }
+
+  void setHasReadAllUnreads() {
+    if (messages.isNotEmpty) {
+      final msgCreateTimeEpoch = messages.first.createTimeEpoch;
+      if (_lastMessageRepo.getByChannelId(_channelId) != msgCreateTimeEpoch) {
+        _lastMessageRepo.setLastRead(_channelId, msgCreateTimeEpoch);
+      }
+    }
   }
 }

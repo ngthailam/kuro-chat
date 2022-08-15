@@ -22,7 +22,7 @@ A simple chat application with the purpose to improve and practice my programmin
 
 ### New features
 - Implement some sort of queues for chat messages + update last message
-- Add unread
+- Delete/Edit message
 - Add send images
 - Add reactions
 - Add quote message (1 level)

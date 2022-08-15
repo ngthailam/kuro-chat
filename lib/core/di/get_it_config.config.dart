@@ -61,7 +61,6 @@ _i1.GetIt $initGetIt(_i1.GetIt get,
   gh.factory<_i17.ChatRepo>(() => _i17.ChatRepoImpl(
       get<_i4.ChatLocalDataSource>(),
       get<_i5.ChatRemoteDataSource>(),
-      get<_i15.ChannelRemoteDataSource>(),
       get<_i7.LastMessageRemoteDataSource>()));
   return get;
 }

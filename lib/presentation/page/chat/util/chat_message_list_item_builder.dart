@@ -1,61 +1,98 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
-import 'package:kuro_chat/presentation/constant/color.dart';
+import 'package:kuro_chat/presentation/page/chat/model/chat_message_item.dart';
 import 'package:kuro_chat/presentation/page/chat/util/bubble_decoration_builder.dart';
+import 'package:kuro_chat/presentation/page/chat/widget/chat_message_is_typing.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/chat_message_text.dart';
+import 'package:kuro_chat/presentation/page/chat/widget/chat_message_unread_cutoff.dart';
 
+// Should be a single instance inside the ChatPage scope
 class ChatMessageListItemBuilder {
-  final List<ChatMessageEntity> messages;
   final String currentUserId;
-  final bool isTargetTyping;
+
+  List<ChatMessageEntity> messages = [];
+  bool isTargetTyping = false;
+  int? lastMessageReadTimeEpoch = 0;
+  // TODO: use smt to keep the animation if posible
+  int loadCount = 0;
 
   ChatMessageListItemBuilder({
-    required this.messages,
     required this.currentUserId,
-    required this.isTargetTyping,
   });
 
-  late int messageIndexOffset = isTargetTyping ? -1 : 0;
-
-  Widget build({required int itemIndex}) {
-    if (isTargetTyping && itemIndex == 0) {
-      return _isTypingBox();
-    }
-
-    final messageIndex = itemIndex + messageIndexOffset;
-    final messageItem = messages[messageIndex];
-
-    switch (messageItem.type) {
-      case chatTypeMessage:
-        final inputArg = ChatMessageTextArg.from(
-          message: messageItem,
-          position: _resolvePosition(messageIndex),
-        );
-        return ChatMessageText(
-          key: ValueKey(messageItem.createTimeEpoch),
-          inputArg: inputArg,
-        );
-      default:
-        return const SizedBox.shrink();
-    }
+  void setMessages(List<ChatMessageEntity> messages) {
+    this.messages = messages;
+    loadCount++;
   }
 
-  Widget _isTypingBox() {
-    // TODO: add animation
-    return Align(
-      alignment: Alignment.bottomLeft,
-      child: Container(
-        height: 28,
-        width: 56,
-        decoration: BoxDecoration(
-            color: clrGrayLighter, borderRadius: BorderRadius.circular(16)),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        margin: const EdgeInsets.only(left: 58),
-        child: const Center(child: Icon(Icons.more_horiz, size: 24)),
-      ),
-    );
+  void setIsTargetTyping(bool isTargetTyping) {
+    this.isTargetTyping = isTargetTyping;
+  }
+
+  void setLastMessageReadTimeEpoch(int? lastMessageReadTimeEpoch) {
+    this.lastMessageReadTimeEpoch = lastMessageReadTimeEpoch;
+  }
+
+  List<ChatMessageItem> generateItems() {
+    final List<ChatMessageItem> items = [];
+
+    if (isTargetTyping) {
+      items.add(ChatItemTyping());
+    }
+
+    bool addedUnreadItem = false;
+    for (var i = 0; i < messages.length; i++) {
+      final messageEntity = messages[i];
+
+      // Adding unread cut off
+      if (lastMessageReadTimeEpoch != null && loadCount < 2) {
+        final isRead =
+            messageEntity.createTimeEpoch <= lastMessageReadTimeEpoch!;
+        if (!addedUnreadItem && !isRead && i != messages.length - 1) {
+          final isPreviousItemRead =
+              messages[i + 1].createTimeEpoch <= lastMessageReadTimeEpoch!;
+          if (isPreviousItemRead) {
+            items.add(ChatItemUnreadCutoff());
+            addedUnreadItem = true;
+          }
+        }
+      }
+
+      // Add message text item
+      items.add(
+        ChatItemText(
+          messageEntity: messageEntity,
+          chatPosition: _resolvePosition(i),
+        ),
+      );
+    }
+
+    return items;
+  }
+
+  Widget buildItem({ChatMessageItem? item}) {
+    if (item is ChatItemTyping) {
+      return const ChatMessageTyping(
+        key: ValueKey('typing-chat-item'),
+      );
+    }
+
+    if (item is ChatItemText) {
+      if (item.messageEntity == null) return const SizedBox.shrink();
+      return ChatMessageText(
+        key: ValueKey(item.messageEntity!.createTimeEpoch),
+        inputArg: ChatMessageTextArg.from(
+          message: item.messageEntity!,
+          position: item.chatPosition,
+        ),
+      );
+    }
+
+    if (item is ChatItemUnreadCutoff) {
+      return const ChatMessageUnreadCutoff();
+    }
+
+    return const SizedBox.shrink();
   }
 
   ChatPosition _resolvePosition(int index) {

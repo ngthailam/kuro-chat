@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
@@ -76,7 +75,7 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
 
   @override
   Future<List<ChannelEntity>> getMyChannels() async {
-    print('[ChannelRemoteDataSource] getMyChannels()....');
+    // print('[ChannelRemoteDataSource] getMyChannels()....');
     final userChannelsRef = FirebaseFirestore.instance
         .collection('channels')
         .where('members.$currentUserId', isNull: false);
@@ -88,8 +87,6 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
         channels.add(ChannelEntity.fromJson(doc.data()));
       }
     }
-
-    print('ZZLL channels = ${channels.length}');
 
     return channels;
   }

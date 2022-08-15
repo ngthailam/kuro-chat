@@ -4,18 +4,14 @@ import 'package:injectable/injectable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class LastMessageLocalDataSource {
+  int? getByChannelId(String channelId);
+
   // @param lastMessageReadData
   // key: channel id
   // int: last message createTimeEpoch
-  void update({required Map<String, int> lastMessageReadData});
-
-  int? getByChannelId(String channelId);
-
-  Future persist();
-
   Future save({required Map<String, int> lastMessageReadData});
 
-  Future populateRamCache();
+  Future populateRamFromDb();
 
   Map<String, int> getAll();
 
@@ -41,26 +37,14 @@ class LastMessageLocalDataSourceImpl extends LastMessageLocalDataSource {
   }
 
   @override
-  void update({required Map<String, int> lastMessageReadData}) {
-    lastMessageReadData.forEach((key, value) {
-      _lastMessageReadMap[key] = value;
-    });
-  }
-
-  @override
-  Future persist() async {
-    if (_lastMessageReadMap.isNotEmpty) {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
-          prefKeyLastReadMap, jsonEncode(_lastMessageReadMap));
-    }
-  }
-
-  @override
   Future save({required Map<String, int> lastMessageReadData}) async {
     if (lastMessageReadData.isNotEmpty) {
+      lastMessageReadData.forEach((key, value) {
+        _lastMessageReadMap[key] = value;
+      });
+
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(
+      prefs.setString(
         prefKeyLastReadMap,
         jsonEncode(lastMessageReadData),
       );
@@ -68,7 +52,7 @@ class LastMessageLocalDataSourceImpl extends LastMessageLocalDataSource {
   }
 
   @override
-  Future populateRamCache() async {
+  Future populateRamFromDb() async {
     if (_lastMessageReadMap.isEmpty) {
       final prefs = await SharedPreferences.getInstance();
       final lastReadJsonString = prefs.getString(prefKeyLastReadMap);

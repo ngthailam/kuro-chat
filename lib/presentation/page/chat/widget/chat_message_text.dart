@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
-import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/chat/util/bubble_decoration_builder.dart';
 import 'package:kuro_chat/presentation/util/date_util.dart';
 import 'package:kuro_chat/presentation/widget/custom_circle_avatar.dart';
@@ -35,7 +34,6 @@ class ChatMessageTextArg {
   }
 }
 
-// TODO: change color sender name + chat background for chat target
 class ChatMessageText extends StatelessWidget {
   const ChatMessageText({Key? key, required this.inputArg}) : super(key: key);
 

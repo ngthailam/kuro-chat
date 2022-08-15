@@ -1,14 +1,10 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
-import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
-import 'package:kuro_chat/presentation/page/chat/util/chat_message_list_item_builder.dart';
 
 class ChatPage extends GetView<ChatController> {
   ChatPage({Key? key}) : super(key: key);
@@ -138,20 +134,14 @@ class ChatPage extends GetView<ChatController> {
   Widget _chat() {
     return Obx(() {
       final messages = controller.messages;
-      final isTargetTyping = controller.isTargetTyping.value;
-      final itemLength = messages.length + (isTargetTyping ? 1 : 0);
 
-      log("_chat isTargetTyping=$isTargetTyping || _itemLength=$itemLength");
+      // log("_chat isTargetTyping=$isTargetTyping || _itemLength=$itemLength");
 
       if (messages.isEmpty) {
         return const Expanded(child: SizedBox.shrink());
       }
 
-      final builder = ChatMessageListItemBuilder(
-        messages: messages,
-        currentUserId: currentUserId,
-        isTargetTyping: isTargetTyping,
-      );
+      final chatItems = controller.builder.generateItems();
 
       return Expanded(
         child: ListView.separated(
@@ -159,10 +149,10 @@ class ChatPage extends GetView<ChatController> {
           addAutomaticKeepAlives: false,
           physics: const BouncingScrollPhysics(),
           reverse: true,
-          itemCount: itemLength,
+          itemCount: chatItems.length,
           separatorBuilder: (context, i) => const SizedBox(height: 4),
           itemBuilder: (context, i) {
-            return builder.build(itemIndex: i);
+            return controller.builder.buildItem(item: chatItems[i]);
           },
         ),
       );

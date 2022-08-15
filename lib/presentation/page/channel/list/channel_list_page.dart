@@ -156,6 +156,7 @@ class ChannelListPage extends GetView<ChannelListController> {
             channel.getChannelName,
             style: TextStyle(
               fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
+              fontSize: 16,
             ),
           ),
         ),
@@ -175,7 +176,7 @@ class ChannelListPage extends GetView<ChannelListController> {
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
               color: hasUnreadMsg
-                  ? Colors.black.withOpacity(0.6)
+                  ? Colors.black.withOpacity(0.7)
                   : Colors.black.withOpacity(0.4),
               fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
             ),
@@ -190,7 +191,7 @@ class ChannelListPage extends GetView<ChannelListController> {
                 ),
                 style: TextStyle(
                   color: hasUnreadMsg
-                      ? Colors.black.withOpacity(0.6)
+                      ? Colors.black.withOpacity(0.7)
                       : Colors.black.withOpacity(0.4),
                   fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
                 ),

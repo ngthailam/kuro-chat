@@ -46,6 +46,7 @@ dependencies:
   get: ^4.6.5
   intl: ^0.17.0
   cached_network_image: ^3.2.1
+  visibility_detector: ^0.3.3
 
 dev_dependencies:
   flutter_test:

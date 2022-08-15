@@ -2,7 +2,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
-import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 abstract class LastMessageRemoteDataSource {
@@ -50,7 +49,7 @@ class LastMessageRemoteDataSourceImpl extends LastMessageRemoteDataSource {
     final Map<String, int> resultMap = {};
     for (var data in snapshot.children) {
       if (data.exists) {
-        resultMap.addAll(Map<String, int>.from(data.value as Map));
+        resultMap[data.key!] = data.value as int;
       }
     }
 
@@ -61,6 +60,7 @@ class LastMessageRemoteDataSourceImpl extends LastMessageRemoteDataSource {
   Future<Map<String, int>> updateUserLastMessage({
     required Map<String, int> lastMessageRead,
   }) async {
+    // print("ZZLL ok ${lastMessageRead}");
     final ref =
         FirebaseDatabase.instance.ref('users/$currentUserId/lastMessage');
     await ref.update(lastMessageRead);
