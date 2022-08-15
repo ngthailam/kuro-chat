@@ -18,7 +18,7 @@ A simple chat application with the purpose to improve and practice my programmin
 - Improve search channel UI (LOW PRIO)
 ### Bugs
 
-- Reload channel list
+- Reload channel list after create channel
 
 ### New features
 - Implement some sort of queues for chat messages + update last message
@@ -31,4 +31,6 @@ A simple chat application with the purpose to improve and practice my programmin
 - Add emoji
 - Add notifications
 - Add settings screen
-- Add logout screen
+- Add logout 
+    - Remove last message read map on logout
+    - Add last message read map on login

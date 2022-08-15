@@ -5,6 +5,7 @@ import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
 import 'package:kuro_chat/data/chat/entity/chat_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_extra_data_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
+import 'package:kuro_chat/data/lastmessage/datasource/last_message_remote_datasource.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 abstract class ChatRepo {
@@ -24,11 +25,13 @@ class ChatRepoImpl extends ChatRepo {
   final ChatLocalDataSource _chatLocalDataSource;
   final ChatRemoteDataSource _chatRemoteDataSource;
   final ChannelRemoteDataSource _channelRemoteDataSource;
+  final LastMessageRemoteDataSource _lastMessageRemoteDataSource;
 
   ChatRepoImpl(
     this._chatLocalDataSource,
     this._chatRemoteDataSource,
     this._channelRemoteDataSource,
+    this._lastMessageRemoteDataSource,
   );
 
   @override
@@ -45,7 +48,7 @@ class ChatRepoImpl extends ChatRepo {
         senderId: currentUser!.id,
         senderName: currentUser!.name,
       );
-      _channelRemoteDataSource.updateLastMessage(
+      _lastMessageRemoteDataSource.updateChannelLastMessage(
         channelId: channelId,
         text: text,
         createTimeEpoch: message.createTimeEpoch,

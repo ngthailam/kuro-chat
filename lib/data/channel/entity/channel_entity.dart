@@ -1,5 +1,7 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
+import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 part 'channel_entity.g.dart';
 
@@ -13,10 +15,10 @@ class ChannelEntity {
 
   // Channel ids
   @JsonKey(name: 'members', defaultValue: {})
-  final Map<String, bool>? members;
+  final Map<String, UserEntity>? members;
 
   @JsonKey(name: 'lastMessage')
-  final ChannelLastMessageEntity? lastMessage;
+  final LastMessageEntity? lastMessage;
 
   ChannelEntity({
     required this.channelId,
@@ -32,6 +34,25 @@ class ChannelEntity {
     return members?.keys.firstWhere((element) => element != currentUserId);
   }
 
+  String get getChannelName {
+    if (isOneOneChat) {
+      final otherUserId =
+          members!.keys.firstWhere((element) => element != currentUserId);
+      return members![otherUserId]?.name ?? '(No name)';
+    }
+
+    // Channel name for groups
+    if (channelName?.isNotEmpty == true) {
+      return channelName!;
+    } else {
+      var memberNamesAsChannelName = '';
+      for (var element in members!.values) {
+        memberNamesAsChannelName += "${element.name}, ";
+      }
+      return memberNamesAsChannelName;
+    }
+  }
+
   factory ChannelEntity.fromJson(Map<String, dynamic> json) =>
       _$ChannelEntityFromJson(json);
 
@@ -39,18 +60,18 @@ class ChannelEntity {
 }
 
 @JsonSerializable()
-class ChannelLastMessageEntity {
+class LastMessageEntity {
   final String? text;
 
   final int? createTimeEpoch;
 
-  ChannelLastMessageEntity({
+  LastMessageEntity({
     required this.text,
     required this.createTimeEpoch,
   });
 
-  factory ChannelLastMessageEntity.fromJson(Map<String, dynamic> json) =>
-      _$ChannelLastMessageEntityFromJson(json);
+  factory LastMessageEntity.fromJson(Map<String, dynamic> json) =>
+      _$LastMessageEntityFromJson(json);
 
-  Map<String, dynamic> toJson() => _$ChannelLastMessageEntityToJson(this);
+  Map<String, dynamic> toJson() => _$LastMessageEntityToJson(this);
 }

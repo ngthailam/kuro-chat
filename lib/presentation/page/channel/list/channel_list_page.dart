@@ -78,28 +78,33 @@ class ChannelListPage extends GetView<ChannelListController> {
         }
 
         if (channels.isNotEmpty) {
-          return ListView.separated(
-            itemCount: channels.length,
-            physics: const BouncingScrollPhysics(),
-            separatorBuilder: (context, i) {
-              return const Padding(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 64),
-                child: Divider(
-                  height: 1,
-                  thickness: 1,
-                  color: clrMint,
-                ),
-              );
+          return RefreshIndicator(
+            onRefresh: () async {
+              controller.refreshMyChannels();
             },
-            itemBuilder: (context, i) {
-              return Padding(
-                key: ValueKey(channels[i].channelId),
-                padding: i == channels.length - 1
-                    ? const EdgeInsets.only(bottom: 82)
-                    : EdgeInsets.zero,
-                child: _channelItem(channels[i]),
-              );
-            },
+            child: ListView.separated(
+              itemCount: channels.length,
+              physics: const AlwaysScrollableScrollPhysics(),
+              separatorBuilder: (context, i) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 64),
+                  child: Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: clrMint,
+                  ),
+                );
+              },
+              itemBuilder: (context, i) {
+                return Padding(
+                  key: ValueKey(channels[i].channelId),
+                  padding: i == channels.length - 1
+                      ? const EdgeInsets.only(bottom: 82)
+                      : EdgeInsets.zero,
+                  child: _channelItem(channels[i]),
+                );
+              },
+            ),
           );
         }
 
@@ -112,6 +117,8 @@ class ChannelListPage extends GetView<ChannelListController> {
   }
 
   Widget _channelItem(ChannelEntity channel) {
+    final hasUnreadMsg = controller.hasUnreadMessages(channel);
+
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
@@ -122,7 +129,7 @@ class ChannelListPage extends GetView<ChannelListController> {
         mainAxisSize: MainAxisSize.min,
         children: [
           CustomCircleAvatar(
-            name: channel.channelName,
+            name: channel.getChannelName,
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -130,9 +137,9 @@ class ChannelListPage extends GetView<ChannelListController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                _nameAndStatus(channel),
+                _nameAndStatus(channel, hasUnreadMsg),
                 const SizedBox(height: 4),
-                _lastestMessage(channel),
+                _lastestMessage(channel, hasUnreadMsg),
               ],
             ),
           )
@@ -141,24 +148,37 @@ class ChannelListPage extends GetView<ChannelListController> {
     );
   }
 
-  Widget _nameAndStatus(ChannelEntity channel) {
+  Widget _nameAndStatus(ChannelEntity channel, bool hasUnreadMsg) {
     return Row(
       children: [
-        Expanded(child: Text(channel.channelName ?? '')),
+        Expanded(
+          child: Text(
+            channel.getChannelName,
+            style: TextStyle(
+              fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
+            ),
+          ),
+        ),
         const SizedBox(width: 16),
       ],
     );
   }
 
-  Widget _lastestMessage(ChannelEntity channel) {
-    // TODO: update to real color hex to use const
+  Widget _lastestMessage(ChannelEntity channel, bool hasUnreadMsg) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Expanded(
           child: Text(
             channel.lastMessage?.text ?? 'Start your conversation',
-            style: TextStyle(color: Colors.black.withOpacity(0.4)),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: hasUnreadMsg
+                  ? Colors.black.withOpacity(0.6)
+                  : Colors.black.withOpacity(0.4),
+              fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
+            ),
           ),
         ),
         const SizedBox(width: 16),
@@ -169,7 +189,10 @@ class ChannelListPage extends GetView<ChannelListController> {
                   channel.lastMessage!.createTimeEpoch!,
                 ),
                 style: TextStyle(
-                  color: Colors.black.withOpacity(0.4),
+                  color: hasUnreadMsg
+                      ? Colors.black.withOpacity(0.6)
+                      : Colors.black.withOpacity(0.4),
+                  fontWeight: hasUnreadMsg ? FontWeight.bold : FontWeight.w400,
                 ),
               ),
       ],

@@ -13,6 +13,7 @@ abstract class ChatLocalDataSource {
 class ChatLocalDataSourceImpl extends ChatLocalDataSource {
   final Map<String, bool> _isTypingMap = {};
 
+  
   @override
   bool getIsTyping(String channelId) {
     return _isTypingMap[channelId] ?? false;

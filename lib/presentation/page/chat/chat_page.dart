@@ -87,7 +87,7 @@ class ChatPage extends GetView<ChatController> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            channel.channelName ?? '',
+            channel.getChannelName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
           ),

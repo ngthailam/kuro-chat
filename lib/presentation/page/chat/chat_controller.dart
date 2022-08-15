@@ -12,6 +12,7 @@ import 'package:kuro_chat/data/channel/repository/channel_repository.dart';
 import 'package:kuro_chat/data/chat/entity/chat_extra_data_entity.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/chat/repository/chat_repo.dart';
+import 'package:kuro_chat/data/lastmessage/repo/last_message_repo.dart';
 import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
 import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
@@ -24,8 +25,10 @@ class ChatBindings extends Bindings {
 }
 
 class ChatController extends GetxController {
+  // TODO: inject using getX
   final ChannelRepo _channelRepo = getIt();
   final ChatRepo _chatRepo = getIt();
+  final LastMessageRepo _lastMessageRepo = getIt();
 
   String _channelId = '';
 
@@ -40,6 +43,8 @@ class ChatController extends GetxController {
 
   final Debouncer _chatTypeDebouncer =
       Debouncer(duration: const Duration(milliseconds: 500));
+
+  int _lastReadMessageCreateTimeEpoch = 0;
 
   @override
   void onReady() {
@@ -72,7 +77,13 @@ class ChatController extends GetxController {
   Future _observeChat() async {
     _streamSubscription =
         _chatRepo.observeMessages(_channelId).listen((chatMessages) {
-      log('messages: $chatMessages');
+      if (chatMessages.isNotEmpty) {
+        final msgCreateTimeEpoch = chatMessages.first.createTimeEpoch;
+        if (_lastReadMessageCreateTimeEpoch != msgCreateTimeEpoch) {
+          _lastMessageRepo.setLastRead(_channelId, msgCreateTimeEpoch);
+          _lastReadMessageCreateTimeEpoch = msgCreateTimeEpoch;
+        }
+      }
       messages(chatMessages);
     });
   }

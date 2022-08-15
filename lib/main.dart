@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/route_manager.dart';
 import 'package:kuro_chat/core/config/firebase_options.dart';
 import 'package:kuro_chat/core/di/get_it_config.dart';
+import 'package:kuro_chat/data/lastmessage/repo/last_message_repo.dart';
 import 'package:kuro_chat/data/meta_data/entity/meta_data_entity.dart';
 import 'package:kuro_chat/data/meta_data/repository/meta_data_repo.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
@@ -49,9 +50,11 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         _metaDataRepo.setUserStatus(UserStatus.online);
+        getIt<LastMessageRepo>().populdateData();
         break;
       case AppLifecycleState.paused:
         _metaDataRepo.setUserStatus(UserStatus.offline);
+        getIt<LastMessageRepo>().persistData();
         break;
       default:
         return;

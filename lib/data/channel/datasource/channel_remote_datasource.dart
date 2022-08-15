@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/chat/datasource/chat_remote_datasource.dart';
-import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
@@ -15,12 +15,6 @@ abstract class ChannelRemoteDataSource {
   Future<ChannelEntity?> getChannel(String channelId);
 
   Future<List<ChannelEntity>> findChannel(String channelId);
-
-  Future updateLastMessage({
-    required String channelId,
-    required String text,
-    required int createTimeEpoch,
-  });
 }
 
 @Injectable(as: ChannelRemoteDataSource)
@@ -33,10 +27,15 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
 
   @override
   Future<ChannelEntity> createChannel(UserEntity receiver) async {
+    if (currentUser == null) {
+      throw Exception('Invalid current user');
+    }
+
     final generatedChannelId = const Uuid().v4();
     final existingChannelRef = FirebaseFirestore.instance
         .collection('channels')
-        .where('members.${receiver.id}', isEqualTo: true);
+        .where('members.${receiver.id}', isNull: false)
+        .where('members.$currentUserId', isNull: false);
     final snapshot = (await existingChannelRef.get()).docs;
 
     if (snapshot.isNotEmpty) {
@@ -46,8 +45,11 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     // Save chat in data store
     final newChannel = ChannelEntity(
       channelId: generatedChannelId,
-      channelName: receiver.name,
-      members: {receiver.id: true, currentUserId: true},
+      channelName: '',
+      members: {
+        receiver.id: receiver,
+        currentUserId: currentUser!,
+      },
     );
     await FirebaseFirestore.instance
         .collection('channels')
@@ -74,9 +76,10 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
 
   @override
   Future<List<ChannelEntity>> getMyChannels() async {
+    print('[ChannelRemoteDataSource] getMyChannels()....');
     final userChannelsRef = FirebaseFirestore.instance
         .collection('channels')
-        .where('members.$currentUserId', isEqualTo: true);
+        .where('members.$currentUserId', isNull: false);
     final snapshot = await userChannelsRef.get();
     final channels = <ChannelEntity>[];
 
@@ -85,6 +88,8 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
         channels.add(ChannelEntity.fromJson(doc.data()));
       }
     }
+
+    print('ZZLL channels = ${channels.length}');
 
     return channels;
   }
@@ -110,19 +115,5 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
     }
 
     return channels;
-  }
-
-  @override
-  Future updateLastMessage({
-    required String channelId,
-    required String text,
-    required int createTimeEpoch,
-  }) {
-    final lastMessage =
-        ChannelLastMessageEntity(createTimeEpoch: createTimeEpoch, text: text);
-    return FirebaseFirestore.instance
-        .collection('channels')
-        .doc(channelId)
-        .update({'lastMessage': lastMessage.toJson()});
   }
 }

@@ -11,12 +11,13 @@ ChannelEntity _$ChannelEntityFromJson(Map<String, dynamic> json) =>
       channelId: json['id'] as String,
       channelName: json['name'] as String?,
       members: (json['members'] as Map<String, dynamic>?)?.map(
-            (k, e) => MapEntry(k, e as bool),
+            (k, e) =>
+                MapEntry(k, UserEntity.fromJson(e as Map<String, dynamic>)),
           ) ??
           {},
       lastMessage: json['lastMessage'] == null
           ? null
-          : ChannelLastMessageEntity.fromJson(
+          : LastMessageEntity.fromJson(
               json['lastMessage'] as Map<String, dynamic>),
     );
 
@@ -24,19 +25,17 @@ Map<String, dynamic> _$ChannelEntityToJson(ChannelEntity instance) =>
     <String, dynamic>{
       'id': instance.channelId,
       'name': instance.channelName,
-      'members': instance.members,
+      'members': instance.members?.map((k, e) => MapEntry(k, e.toJson())),
       'lastMessage': instance.lastMessage?.toJson(),
     };
 
-ChannelLastMessageEntity _$ChannelLastMessageEntityFromJson(
-        Map<String, dynamic> json) =>
-    ChannelLastMessageEntity(
+LastMessageEntity _$LastMessageEntityFromJson(Map<String, dynamic> json) =>
+    LastMessageEntity(
       text: json['text'] as String?,
       createTimeEpoch: json['createTimeEpoch'] as int?,
     );
 
-Map<String, dynamic> _$ChannelLastMessageEntityToJson(
-        ChannelLastMessageEntity instance) =>
+Map<String, dynamic> _$LastMessageEntityToJson(LastMessageEntity instance) =>
     <String, dynamic>{
       'text': instance.text,
       'createTimeEpoch': instance.createTimeEpoch,

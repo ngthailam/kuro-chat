@@ -119,7 +119,10 @@ class ChatMessageText extends StatelessWidget {
     if (shouldShowSenderName && isPositionShowSender) {
       return Text(
         inputArg.senderName,
-        style: const TextStyle(color: clrBlessHighList),
+        style: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+        ),
       );
     }
     return const SizedBox.shrink();

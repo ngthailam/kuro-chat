@@ -20,7 +20,6 @@ class ChatMessageListItemBuilder {
   late int messageIndexOffset = isTargetTyping ? -1 : 0;
 
   Widget build({required int itemIndex}) {
-    log('build - $isTargetTyping - $messageIndexOffset');
     if (isTargetTyping && itemIndex == 0) {
       return _isTypingBox();
     }
