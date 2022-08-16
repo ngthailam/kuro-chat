@@ -20,9 +20,14 @@ abstract class ChatRepo {
 
   Future updateReaction({
     required String channelId,
-    required String chatId,
+    required String messageId,
     required String reactionText,
     required bool isAdd,
+  });
+
+  Future deleteMessage({
+    required String channelId,
+    required String messageId,
   });
 }
 
@@ -88,15 +93,23 @@ class ChatRepoImpl extends ChatRepo {
   @override
   Future updateReaction({
     required String channelId,
-    required String chatId,
+    required String messageId,
     required String reactionText,
     required bool isAdd,
   }) {
     return _chatRemoteDataSource.updateReaction(
       channelId: channelId,
-      chatId: chatId,
+      messageId: messageId,
       reactionText: reactionText,
       isAdd: isAdd,
+    );
+  }
+
+  @override
+  Future deleteMessage({required String channelId, required String messageId}) {
+    return _chatRemoteDataSource.deleteMessage(
+      channelId: channelId,
+      messageId: messageId
     );
   }
 }

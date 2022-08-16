@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
@@ -57,9 +56,6 @@ class ChatMessageText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (inputArg.text == 'Indentity Bond') {
-      print("ZZLL ${inputArg.text} - ${inputArg.reactions}");
-    }
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

@@ -21,13 +21,13 @@ abstract class ChatRemoteDataSource {
     required String senderName,
   });
 
-  Future<bool> deleteMessage(String channelId, String messageId);
+  Future deleteMessage({required String channelId, required String messageId});
 
   Future<bool> setIsTyping(String channelId, bool isTyping);
 
   Future updateReaction({
     required String channelId,
-    required String chatId,
+    required String messageId,
     required String reactionText,
     required bool isAdd,
   });
@@ -126,7 +126,10 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   }
 
   @override
-  Future<bool> deleteMessage(String channelId, String messageId) async {
+  Future deleteMessage({
+    required String channelId,
+    required String messageId,
+  }) async {
     final ref =
         FirebaseDatabase.instance.ref('chat/$channelId/messages/$messageId');
 
@@ -152,17 +155,17 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
   @override
   Future updateReaction(
       {required String channelId,
-      required String chatId,
+      required String messageId,
       required String reactionText,
       required bool isAdd}) {
     final ref = FirebaseDatabase.instance
-        .ref('chat/$channelId/messages/$chatId/reactions/$reactionText');
+        .ref('chat/$channelId/messages/$messageId/reactions/$reactionText');
 
     if (isAdd) {
       return ref.update({currentUserId: true});
     } else {
-      print(
-          "ZZLL updateReaction remove path = ${'${ref.path}/$currentUserId'}");
+      // print(
+      //     "ZZLL updateReaction remove path = ${'${ref.path}/$currentUserId'}");
       final removeRef =
           FirebaseDatabase.instance.ref('${ref.path}/$currentUserId');
       return removeRef.remove();

@@ -21,6 +21,8 @@ class ChatMessageEntity {
   // value: map: with key: userId, value: always true
   final Map<String, Map<String, bool>> reactions;
 
+  String get id => createTimeEpoch.toString();
+
   ChatMessageEntity({
     required this.senderId,
     this.text = '',

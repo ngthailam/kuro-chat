@@ -129,14 +129,14 @@ class ChatController extends GetxController {
   }
 
   void onReactionPress({
-    required String chatId,
+    required String messageId,
     required String reactionText,
   }) {
     bool isAddReaction = true;
-    // TODO: this is to serve updating UI locally first, but it is not 
+    // TODO: this is to serve updating UI locally first, but it is not
     // needed right now, update in the future
     messages.map((element) {
-      if (element.createTimeEpoch.toString() == chatId) {
+      if (element.createTimeEpoch.toString() == messageId) {
         final chatReactions = element.reactions;
         final chatReactionTextxData = chatReactions[reactionText];
         isAddReaction = chatReactionTextxData?[currentUserId] == null;
@@ -154,13 +154,17 @@ class ChatController extends GetxController {
       }
     }).toList();
 
-
     // Call API
     _chatRepo.updateReaction(
       channelId: _channelId,
-      chatId: chatId,
+      messageId: messageId,
       reactionText: reactionText,
       isAdd: isAddReaction,
     );
+  }
+
+  void deleteMessage({required String messageId}) async {
+    await _chatRepo.deleteMessage(messageId: messageId, channelId: _channelId);
+    // TODO: add show dialog for delete success
   }
 }

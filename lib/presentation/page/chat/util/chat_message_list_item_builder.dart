@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/presentation/page/chat/model/chat_message_item.dart';
@@ -46,14 +45,13 @@ class ChatMessageListItemBuilder {
       final messageEntity = messages[i];
 
       // Adding unread cut off
-      // print("ZZLL lastMessageReadTimeEpoch=$lastMessageReadTimeEpoch");
       if (lastMessageReadTimeEpoch != null && loadCount < 2) {
         final isRead =
             messageEntity.createTimeEpoch <= lastMessageReadTimeEpoch!;
         if (!addedUnreadItem && !isRead && i != messages.length - 1) {
-          final isPreviousItemRead =
+          final isNextItemRead =
               messages[i + 1].createTimeEpoch <= lastMessageReadTimeEpoch!;
-          if (isPreviousItemRead) {
+          if (isNextItemRead) {
             items.add(ChatItemUnreadCutoff());
             addedUnreadItem = true;
           }

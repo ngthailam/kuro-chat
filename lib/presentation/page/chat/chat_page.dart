@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
-import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/reaction_dialog.dart';
@@ -13,8 +13,6 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
   ChatPage({Key? key}) : super(key: key);
 
   final TextEditingController _textController = TextEditingController();
-
-  OverlayEntry? reactionOverlayEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -161,13 +159,11 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
             return controller.builder.buildItem(
               item: chatItem,
               onLongPressEnd: (details) {
-                if (chatItem.messageEntity!.senderId != currentUserId) {
-                  showReactionOverlay(
-                    context: context,
-                    position: details.globalPosition,
-                    chatId: chatItem.messageEntity!.createTimeEpoch.toString(),
-                  );
-                }
+                showOptionsOverlay(
+                  context: context,
+                  position: details.globalPosition,
+                  chatMessage: chatItem.messageEntity!
+                );
               },
             );
           },
@@ -177,12 +173,31 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
   }
 
   @override
-  void onReactionPress({required String reactionText, required String chatId}) {
-    controller.onReactionPress(
-      reactionText: reactionText,
-      chatId: chatId,
-    );
-  }
+  ReactionDialogCallback get chatMessageCallback => ({
+        String? reactionText,
+        String? chatText,
+        required String messageId,
+        required ChatMessageOptions option,
+      }) {
+        if (option == ChatMessageOptions.react) {
+          controller.onReactionPress(
+              messageId: messageId, reactionText: reactionText!);
+          return;
+        }
+
+        if (option == ChatMessageOptions.copy) {
+          Clipboard.setData(ClipboardData(text: chatText)).then((_) {
+            ScaffoldMessenger.of(Get.context!).showSnackBar(
+                const SnackBar(content: Text("Copied to clipboard")));
+          });
+          return;
+        }
+
+        if (option == ChatMessageOptions.delete) {
+          controller.deleteMessage(messageId: messageId);
+          return;
+        }
+      };
 
   _chatInput() {
     return Container(
