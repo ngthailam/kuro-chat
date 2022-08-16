@@ -5,6 +5,8 @@ import 'package:kuro_chat/presentation/page/auth/register/register_controller.da
 import 'package:kuro_chat/presentation/page/auth/register/register_page.dart';
 import 'package:kuro_chat/presentation/page/channel/create/channel_create_controller.dart';
 import 'package:kuro_chat/presentation/page/channel/create/channel_create_page.dart';
+import 'package:kuro_chat/presentation/page/channel/create/group/channel_create_group_controller.dart';
+import 'package:kuro_chat/presentation/page/channel/create/group/channel_create_group_page.dart';
 import 'package:kuro_chat/presentation/page/channel/list/channel_list_controller.dart';
 import 'package:kuro_chat/presentation/page/channel/list/channel_list_page.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
@@ -18,6 +20,7 @@ class AppRouter {
   static const String login = '/login';
   static const String channelList = '/channel/list';
   static const String channelCreate = '/channel/create';
+  static const String channelCreateGroup = '/channel/create/group';
   static const String chat = '/chat';
 
   static getNavigationPages() {
@@ -51,6 +54,11 @@ class AppRouter {
         name: AppRouter.chat,
         page: () => ChatPage(),
         binding: ChatBindings(),
+      ),
+      GetPage(
+        name: AppRouter.channelCreateGroup,
+        page: () => const ChannelCreateGroupPage(),
+        binding: ChannelCreateGroupBindings(),
       ),
     ];
   }

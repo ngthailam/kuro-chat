@@ -7,7 +7,10 @@ import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:uuid/uuid.dart';
 
 abstract class ChannelRemoteDataSource {
-  Future<ChannelEntity> createChannel(UserEntity receiver);
+  Future<ChannelEntity> createChannel({
+    required List<UserEntity> users,
+    String? channelName,
+  });
 
   Future<List<ChannelEntity>> getMyChannels();
 
@@ -25,31 +28,46 @@ class ChannelRemoteDataSourceImpl extends ChannelRemoteDataSource {
   );
 
   @override
-  Future<ChannelEntity> createChannel(UserEntity receiver) async {
+  Future<ChannelEntity> createChannel({
+    required List<UserEntity> users,
+    String? channelName,
+  }) async {
     if (currentUser == null) {
       throw Exception('Invalid current user');
     }
 
     final generatedChannelId = const Uuid().v4();
-    final existingChannelRef = FirebaseFirestore.instance
-        .collection('channels')
-        .where('members.${receiver.id}', isNull: false)
-        .where('members.$currentUserId', isNull: false);
-    final snapshot = (await existingChannelRef.get()).docs;
 
-    if (snapshot.isNotEmpty) {
-      throw Exception('Channel already exist');
-    }
+    // TODO: fix this check
+    // '!hasNotEqualTo': You cannot use '!=' filters more than once.
+    // final existingCollectionRef =
+    //     FirebaseFirestore.instance.collection('channels');
+
+    // Query<Map<String, dynamic>> existingChannelQuery =
+    //     existingCollectionRef.where('members.$currentUserId', isNull: false);
+
+    // for (var u in users) {
+    //   existingChannelQuery = existingChannelQuery.where(
+    //     'members.${u.id}',
+    //     isNull: false,
+    //   );
+    // }
+
+    // final snapshot = (await existingChannelQuery.get()).docs;
+    // if (snapshot.isNotEmpty) {
+    //   throw Exception('Channel already exist');
+    // }
 
     // Save chat in data store
+    var membersMap = {for (var user in users) user.id: user};
+    membersMap[currentUserId] = currentUser!;
+
     final newChannel = ChannelEntity(
       channelId: generatedChannelId,
-      channelName: '',
-      members: {
-        receiver.id: receiver,
-        currentUserId: currentUser!,
-      },
+      channelName: channelName ?? '',
+      members: membersMap,
     );
+
     await FirebaseFirestore.instance
         .collection('channels')
         .doc(generatedChannelId)

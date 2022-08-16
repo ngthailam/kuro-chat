@@ -9,6 +9,8 @@ abstract class UserRepo {
   Future<UserEntity?> refreshCurrentUser();
 
   Future<List<UserEntity>> fetchByName(String name);
+
+  Future<List<UserEntity>> searchByName(String name);
 }
 
 @Injectable(as: UserRepo)
@@ -29,6 +31,11 @@ class UserRepoImpl extends UserRepo {
   @override
   Future<List<UserEntity>> fetchByName(String name) {
     return _remoteDataSource.fetchByName(name);
+  }
+
+  @override
+  Future<List<UserEntity>> searchByName(String name) {
+    return _remoteDataSource.searchByName(name);
   }
 
   @override

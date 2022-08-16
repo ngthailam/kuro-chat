@@ -70,10 +70,11 @@ class ChannelCreateController extends GetxController {
     try {
       // TODO: needs refactor and rename
       // TODO: add check if channel already exist or smt
-      await _channelRepo.createChannel(receiver);
+      await _channelRepo.createChannel(
+        users: [receiver],
+      );
       createLoadState(LoadState.success);
     } catch (e) {
-      print('Create channel error $e');
       createLoadState(LoadState.error);
     }
   }

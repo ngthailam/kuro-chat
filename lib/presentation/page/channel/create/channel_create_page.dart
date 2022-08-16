@@ -5,6 +5,7 @@ import 'package:kuro_chat/core/utils/load_state.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/channel/create/channel_create_controller.dart';
+import 'package:kuro_chat/presentation/util/app_router.dart';
 import 'package:kuro_chat/presentation/widget/custom_circle_avatar.dart';
 
 class ChannelCreatePage extends GetView<ChannelCreateController> {
@@ -13,21 +14,16 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create channel'),
+      ),
       body: SafeArea(
         child: Column(
           children: [
             const SizedBox(height: 16),
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Search channels',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ),
-            ),
             _searchBox(),
+            _createGroup(),
+            const SizedBox(height: 8),
             Expanded(child: _searchResults()),
           ],
         ),
@@ -37,7 +33,7 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
 
   Widget _searchBox() {
     return Container(
-      margin: const EdgeInsets.all(16),
+      margin: const EdgeInsets.all(16).copyWith(bottom: 8),
       child: TextField(
         decoration: InputDecoration(
           filled: true,
@@ -56,6 +52,35 @@ class ChannelCreatePage extends GetView<ChannelCreateController> {
         onChanged: (text) {
           controller.searchUser(text);
         },
+      ),
+    );
+  }
+
+  Widget _createGroup() {
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        Get.toNamed(AppRouter.channelCreateGroup);
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: clrCornFlower.withOpacity(0.6),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: Row(
+          children: const [
+            Icon(
+              Icons.group,
+              size: 24,
+            ),
+            SizedBox(width: 16),
+            Expanded(
+              child: Text('Create group chat'),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -13,6 +13,8 @@ abstract class UserRemoteDataSource {
   Future<void> createUser(String userName);
 
   Future<List<UserEntity>> fetchByName(String name);
+
+  Future<List<UserEntity>> searchByName(String name);
 }
 
 @Injectable(as: UserRemoteDataSource)
@@ -64,6 +66,23 @@ class UserRemoteDataSourceImpl extends UserRemoteDataSource {
   @override
   Future<List<UserEntity>> fetchByName(String name) async {
     final docRef = firestore.collection('users').where('name', isEqualTo: name);
+    final snapshot = await docRef.get();
+    final results = <UserEntity>[];
+    for (var snapshot in snapshot.docs) {
+      if (snapshot.exists) {
+        results.add(UserEntity.fromJson(snapshot.data()));
+      }
+    }
+
+    return results;
+  }
+
+  @override
+  Future<List<UserEntity>> searchByName(String name) async {
+    final docRef = firestore
+        .collection('users')
+        .where('name', isGreaterThanOrEqualTo: name)
+        .where('name', isLessThanOrEqualTo: '$name\uf8ff');
     final snapshot = await docRef.get();
     final results = <UserEntity>[];
     for (var snapshot in snapshot.docs) {

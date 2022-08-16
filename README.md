@@ -15,6 +15,7 @@ A simple chat application with the purpose to improve and practice my programmin
 - Online/offline statuses are not real time
 - [channel_list_page][IOS] Allow background color behind notch
 - Improve search channel UI (LOW PRIO)
+- Add smt like DiffUtil to chat list
 
 ### Bugs
 - Reload channel list after create channel
@@ -23,7 +24,6 @@ A simple chat application with the purpose to improve and practice my programmin
 - Implement some sort of queues for chat messages + update last message
 - Add send images
 - Add quote message (1 level)
-- Add group chat
 - Add mentions
 - Add emoji keyboard
 - Add notifications

@@ -5,7 +5,10 @@ import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/data/user/entity/user_entity.dart';
 
 abstract class ChannelRepo {
-  Future<ChannelEntity> createChannel(UserEntity receiver);
+  Future<ChannelEntity> createChannel({
+    required List<UserEntity> users,
+    String? channelName,
+  });
 
   Future<List<ChannelEntity>> getMyChannels();
 
@@ -26,8 +29,14 @@ class ChannelRepoImpl extends ChannelRepo {
   );
 
   @override
-  Future<ChannelEntity> createChannel(UserEntity receiver) {
-    return _channelRemoteDataSource.createChannel(receiver);
+  Future<ChannelEntity> createChannel({
+    required List<UserEntity> users,
+    String? channelName,
+  }) {
+    return _channelRemoteDataSource.createChannel(
+      users: users,
+      channelName: channelName,
+    );
   }
 
   @override
