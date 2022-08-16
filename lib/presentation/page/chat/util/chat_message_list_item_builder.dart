@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/presentation/page/chat/model/chat_message_item.dart';
@@ -45,6 +46,7 @@ class ChatMessageListItemBuilder {
       final messageEntity = messages[i];
 
       // Adding unread cut off
+      // print("ZZLL lastMessageReadTimeEpoch=$lastMessageReadTimeEpoch");
       if (lastMessageReadTimeEpoch != null && loadCount < 2) {
         final isRead =
             messageEntity.createTimeEpoch <= lastMessageReadTimeEpoch!;
@@ -70,7 +72,10 @@ class ChatMessageListItemBuilder {
     return items;
   }
 
-  Widget buildItem({ChatMessageItem? item}) {
+  Widget buildItem({
+    ChatMessageItem? item,
+    GestureLongPressEndCallback? onLongPressEnd,
+  }) {
     if (item is ChatItemTyping) {
       return const ChatMessageTyping(
         key: ValueKey('typing-chat-item'),
@@ -81,6 +86,7 @@ class ChatMessageListItemBuilder {
       if (item.messageEntity == null) return const SizedBox.shrink();
       return ChatMessageText(
         key: ValueKey(item.messageEntity!.createTimeEpoch),
+        onLongPressEnd: onLongPressEnd,
         inputArg: ChatMessageTextArg.from(
           message: item.messageEntity!,
           position: item.chatPosition,

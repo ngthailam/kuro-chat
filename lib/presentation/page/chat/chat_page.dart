@@ -3,13 +3,18 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
+import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
+import 'package:kuro_chat/presentation/page/chat/widget/reaction_dialog.dart';
 
-class ChatPage extends GetView<ChatController> {
+// ignore: must_be_immutable
+class ChatPage extends GetView<ChatController> with ReactionMixin {
   ChatPage({Key? key}) : super(key: key);
 
   final TextEditingController _textController = TextEditingController();
+
+  OverlayEntry? reactionOverlayEntry;
 
   @override
   Widget build(BuildContext context) {
@@ -152,11 +157,31 @@ class ChatPage extends GetView<ChatController> {
           itemCount: chatItems.length,
           separatorBuilder: (context, i) => const SizedBox(height: 4),
           itemBuilder: (context, i) {
-            return controller.builder.buildItem(item: chatItems[i]);
+            final chatItem = chatItems[i];
+            return controller.builder.buildItem(
+              item: chatItem,
+              onLongPressEnd: (details) {
+                if (chatItem.messageEntity!.senderId != currentUserId) {
+                  showReactionOverlay(
+                    context: context,
+                    position: details.globalPosition,
+                    chatId: chatItem.messageEntity!.createTimeEpoch.toString(),
+                  );
+                }
+              },
+            );
           },
         ),
       );
     });
+  }
+
+  @override
+  void onReactionPress({required String reactionText, required String chatId}) {
+    controller.onReactionPress(
+      reactionText: reactionText,
+      chatId: chatId,
+    );
   }
 
   _chatInput() {

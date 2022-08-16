@@ -127,4 +127,40 @@ class ChatController extends GetxController {
       }
     }
   }
+
+  void onReactionPress({
+    required String chatId,
+    required String reactionText,
+  }) {
+    bool isAddReaction = true;
+    // TODO: this is to serve updating UI locally first, but it is not 
+    // needed right now, update in the future
+    messages.map((element) {
+      if (element.createTimeEpoch.toString() == chatId) {
+        final chatReactions = element.reactions;
+        final chatReactionTextxData = chatReactions[reactionText];
+        isAddReaction = chatReactionTextxData?[currentUserId] == null;
+
+        if (isAddReaction) {
+          chatReactions[reactionText]
+              ?.addEntries([MapEntry(currentUserId, true)]);
+        } else {
+          chatReactions[reactionText]?.remove(currentUserId);
+        }
+
+        return element.copyWith(reactions: chatReactions);
+      } else {
+        return element;
+      }
+    }).toList();
+
+
+    // Call API
+    _chatRepo.updateReaction(
+      channelId: _channelId,
+      chatId: chatId,
+      reactionText: reactionText,
+      isAdd: isAddReaction,
+    );
+  }
 }

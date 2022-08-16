@@ -17,6 +17,13 @@ abstract class ChatRepo {
   Stream<ChatExtraDataEntity> observeExtraData(String channelId);
 
   Future<bool> setIsTyping(String channelId, bool isTyping);
+
+  Future updateReaction({
+    required String channelId,
+    required String chatId,
+    required String reactionText,
+    required bool isAdd,
+  });
 }
 
 @Injectable(as: ChatRepo)
@@ -76,5 +83,20 @@ class ChatRepoImpl extends ChatRepo {
     _chatLocalDataSource.setIsTyping(channelId, isTyping);
 
     return true;
+  }
+
+  @override
+  Future updateReaction({
+    required String channelId,
+    required String chatId,
+    required String reactionText,
+    required bool isAdd,
+  }) {
+    return _chatRemoteDataSource.updateReaction(
+      channelId: channelId,
+      chatId: chatId,
+      reactionText: reactionText,
+      isAdd: isAdd,
+    );
   }
 }
