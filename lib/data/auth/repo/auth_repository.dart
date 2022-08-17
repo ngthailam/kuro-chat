@@ -1,5 +1,6 @@
 import 'package:injectable/injectable.dart';
 import 'package:kuro_chat/data/auth/datasource/auth_remote_datasource.dart';
+import 'package:kuro_chat/data/lastmessage/datasource/last_message_local_datasource.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 import 'package:kuro_chat/data/user/datasource/user_remote_datasource.dart';
 
@@ -18,11 +19,13 @@ class AuthRepoImpl extends AuthRepo {
   final AuthRemoteDataSource _authRemoteDataSource;
   final UserRemoteDataSource _userRemoteDataSource;
   final UserLocalDataSource _userLocalDataSource;
+  final LastMessageLocalDataSource _lastMessageLocalDataSource;
 
   AuthRepoImpl(
     this._authRemoteDataSource,
     this._userRemoteDataSource,
     this._userLocalDataSource,
+    this._lastMessageLocalDataSource,
   );
 
   @override
@@ -43,6 +46,7 @@ class AuthRepoImpl extends AuthRepo {
   @override
   Future<void> logOut() async {
     await _userLocalDataSource.deleteCurrentUser();
+    await _lastMessageLocalDataSource.clear();
     return;
   }
 

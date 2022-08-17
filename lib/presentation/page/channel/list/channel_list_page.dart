@@ -6,6 +6,7 @@ import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/core/utils/load_state.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
+import 'package:kuro_chat/presentation/page/account/account_drawer.dart';
 import 'package:kuro_chat/presentation/page/channel/list/channel_list_controller.dart';
 import 'package:kuro_chat/presentation/util/app_router.dart';
 import 'package:kuro_chat/presentation/util/date_util.dart';
@@ -18,6 +19,8 @@ class ChannelListPage extends GetView<ChannelListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      endDrawer: const AccountDrawer(),
+      drawerEnableOpenDragGesture: false,
       body: SafeArea(
         child: Container(
           color: clrMint,
@@ -38,15 +41,30 @@ class ChannelListPage extends GetView<ChannelListController> {
     return Column(
       children: [
         const SizedBox(height: 16),
-        const Align(
-          alignment: Alignment.bottomLeft,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              'Messages',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        Row(
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Text(
+                'Messages',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
+            const Expanded(child: SizedBox()),
+            LayoutBuilder(
+              builder: (context, constraints) => IconButton(
+                padding: const EdgeInsets.only(right: 16),
+                constraints: const BoxConstraints(),
+                onPressed: () {
+                  Scaffold.of(context).openEndDrawer();
+                },
+                icon: const Icon(
+                  Icons.more_vert,
+                  size: 24,
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         Expanded(

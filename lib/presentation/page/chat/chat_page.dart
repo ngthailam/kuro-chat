@@ -160,10 +160,9 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
               item: chatItem,
               onLongPressEnd: (details) {
                 showOptionsOverlay(
-                  context: context,
-                  position: details.globalPosition,
-                  chatMessage: chatItem.messageEntity!
-                );
+                    context: context,
+                    position: details.globalPosition,
+                    chatMessage: chatItem.messageEntity!);
               },
             );
           },

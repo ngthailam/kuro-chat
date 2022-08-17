@@ -47,7 +47,9 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    _controller = Get.find<LoginController>();
+    if (!_controller.initialized) {
+      _controller = Get.find<LoginController>();
+    }
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,

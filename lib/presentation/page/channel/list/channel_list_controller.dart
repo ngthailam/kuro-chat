@@ -25,6 +25,7 @@ class ChannelListController extends GetxController {
   @override
   void onReady() {
     super.onReady();
+    // TODO: may need to move this ?
     getIt<LastMessageRepo>().populdateData();
     _updateUserStatus();
     _fetchMyChannels();
