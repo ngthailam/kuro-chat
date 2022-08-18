@@ -18,7 +18,6 @@ enum ChatMessageOptions {
 }
 
 class ChatMessageOptionDialog extends StatelessWidget {
-  // TODO: consider moving params into 1
   const ChatMessageOptionDialog({
     Key? key,
     required this.dimiss,

@@ -17,7 +17,7 @@ class BubbleDecorationBuilder {
   BoxDecoration build() {
     final key = '$isSender-$position';
     if (bubbleCache[key] != null) {
-      print("ZZLL Bubble decoration from cache=${key}");
+      // print("ZZLL Bubble decoration from cache=${key}");
       return bubbleCache[key]!;
     }
 

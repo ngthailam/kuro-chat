@@ -117,6 +117,10 @@ class ChatMessageText extends StatelessWidget {
       opacity: 0.4,
       child: Container(
         decoration: boxDecoration,
+        margin: EdgeInsets.only(
+          left: inputArg.isSender ? 56 : 0,
+          right: inputArg.isSender ? 0 : 56,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6)
             .copyWith(
                 left: inputArg.isSender ? 28 : 14,
@@ -132,6 +136,8 @@ class ChatMessageText extends StatelessWidget {
             Text(
               message.data?['text'] ?? '',
               style: const TextStyle(color: Colors.white),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
             Text(
               '',
