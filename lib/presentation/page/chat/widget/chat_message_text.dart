@@ -6,20 +6,16 @@ import 'package:kuro_chat/presentation/util/date_util.dart';
 import 'package:kuro_chat/presentation/widget/custom_circle_avatar.dart';
 
 class ChatMessageTextArg {
+  final ChatMessageEntity chatMessage;
   final bool isSender;
-  final String senderName;
-  final String text;
-  final int sendTimeEpoch;
   // key: reaction text
   // value: reaction text count
   final Map<String, int> reactions;
   final ChatPosition? position;
 
   ChatMessageTextArg({
+    required this.chatMessage,
     required this.isSender,
-    required this.senderName,
-    required this.text,
-    required this.sendTimeEpoch,
     required this.reactions,
     this.position,
   });
@@ -34,10 +30,8 @@ class ChatMessageTextArg {
     });
 
     return ChatMessageTextArg(
-      text: message.text,
+      chatMessage: message,
       isSender: message.senderId == currentUserId,
-      senderName: message.senderName,
-      sendTimeEpoch: message.createTimeEpoch,
       reactions: reactionCount,
       position: position,
     );
@@ -53,6 +47,8 @@ class ChatMessageText extends StatelessWidget {
 
   final ChatMessageTextArg inputArg;
   final GestureLongPressEndCallback? onLongPressEnd;
+
+  ChatMessageEntity get message => inputArg.chatMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +75,7 @@ class ChatMessageText extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: CustomCircleAvatar(
           imageUrl: null,
-          name: inputArg.senderName,
+          name: message.senderName,
         ),
       );
     }
@@ -88,40 +84,97 @@ class ChatMessageText extends StatelessWidget {
   }
 
   Widget _main() {
+    final boxDecoration = BubbleDecorationBuilder(
+      isSender: inputArg.isSender,
+      position: inputArg.position ?? ChatPosition.standalone,
+    ).build();
+
     return Align(
       alignment:
           inputArg.isSender ? Alignment.centerRight : Alignment.centerLeft,
-      child: GestureDetector(
-        onTap: () {},
-        onLongPressEnd: onLongPressEnd,
-        child: Container(
-          decoration: BubbleDecorationBuilder(
-            isSender: inputArg.isSender,
-            position: inputArg.position ?? ChatPosition.standalone,
-          ).build(),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-          child: Column(
-            crossAxisAlignment: inputArg.isSender
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
-            children: [
-              _senderName(),
-              const SizedBox(height: 2),
-              // TODO: add if text too short, then text + time is in 1 line
-              Text(
-                inputArg.text,
-                style: const TextStyle(color: Colors.white),
-              ),
-              if (inputArg.reactions.isNotEmpty) const SizedBox(height: 6),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _reactions(),
-                  _sendTime(),
-                ],
-              ),
-            ],
-          ),
+      child: message.isReply
+          ? Stack(
+              alignment:
+                  inputArg.isSender ? Alignment.topRight : Alignment.topLeft,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 24),
+                  child: _replyBubble(boxDecoration),
+                ),
+                Positioned(
+                  bottom: 0,
+                  child: _mainBubble(boxDecoration),
+                ),
+              ],
+            )
+          : _mainBubble(boxDecoration),
+    );
+  }
+
+  Widget _replyBubble(BoxDecoration boxDecoration) {
+    // TODO: opacity is a performance hit, take note to try to improve this
+    return Opacity(
+      opacity: 0.4,
+      child: Container(
+        decoration: boxDecoration,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6)
+            .copyWith(
+                left: inputArg.isSender ? 28 : 14,
+                right: inputArg.isSender ? 14 : 28),
+        child: Column(
+          crossAxisAlignment: inputArg.isSender
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            _senderName(),
+            const SizedBox(height: 2),
+            // TODO: add if text too short, then text + time is in 1 line
+            Text(
+              message.data?['text'] ?? '',
+              style: const TextStyle(color: Colors.white),
+            ),
+            Text(
+              '',
+              textAlign: TextAlign.end,
+              style:
+                  TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _mainBubble(BoxDecoration boxDecoration) {
+    return GestureDetector(
+      onTap: () {
+        // TODO: impl if needed
+      },
+      onLongPressEnd: onLongPressEnd,
+      child: Container(
+        decoration: boxDecoration,
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        child: Column(
+          crossAxisAlignment: inputArg.isSender
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            _senderName(),
+            const SizedBox(height: 2),
+            // TODO: add if text too short, then text + time is in 1 line
+            Text(
+              message.text,
+              style: const TextStyle(color: Colors.white),
+            ),
+            if (inputArg.reactions.isNotEmpty) const SizedBox(height: 6),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _reactions(),
+                _sendTime(),
+              ],
+            ),
+          ],
         ),
       ),
     );
@@ -159,7 +212,7 @@ class ChatMessageText extends StatelessWidget {
 
   Widget _sendTime() {
     return Text(
-      MyDateUtils.fromMillisEpochToTime(inputArg.sendTimeEpoch),
+      MyDateUtils.fromMillisEpochToTime(message.createTimeEpoch),
       textAlign: TextAlign.end,
       style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
     );
@@ -169,10 +222,10 @@ class ChatMessageText extends StatelessWidget {
     final isPositionShowSender = inputArg.position == ChatPosition.first ||
         inputArg.position == ChatPosition.standalone;
     final shouldShowSenderName =
-        !inputArg.isSender && inputArg.senderName.isNotEmpty;
+        !inputArg.isSender && message.senderName.isNotEmpty;
     if (shouldShowSenderName && isPositionShowSender) {
       return Text(
-        inputArg.senderName,
+        message.senderName,
         style: const TextStyle(
           color: Colors.white,
           fontWeight: FontWeight.bold,

@@ -93,8 +93,8 @@ class ChatController extends GetxController {
     this.channel(channel);
   }
 
-  Future sendMessage(String text) async {
-    await _chatRepo.sendMessage(_channelId, text);
+  Future sendMessage(String text, {ChatMessageEntity? replyMessage}) async {
+    await _chatRepo.sendMessage(_channelId, text, replyMessage: replyMessage);
   }
 
   void onTypeChat(String text) {

@@ -37,7 +37,9 @@ class ChatMessageListItemBuilder {
   }
 
   List<ChatMessageItem> generateItems() {
-    final List<ChatMessageItem> items = [];
+    final List<ChatMessageItem> items = [
+      ChatItemBottomSpacing(),
+    ];
 
     // [SECTION] TYPING
     if (isTargetTyping) {
@@ -131,6 +133,10 @@ class ChatMessageListItemBuilder {
 
     if (item is ChatItemDateCutoff) {
       return ChatMessageDateCutoffState(displayDate: item.displayDate);
+    }
+
+    if (item is ChatItemBottomSpacing) {
+      return const SizedBox(height: 4);
     }
 
     return const SizedBox.shrink();

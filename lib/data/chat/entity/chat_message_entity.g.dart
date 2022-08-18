@@ -16,6 +16,10 @@ ChatMessageEntity _$ChatMessageEntityFromJson(Map json) => ChatMessageEntity(
             (k, e) => MapEntry(k as String, Map<String, bool>.from(e as Map)),
           ) ??
           const {},
+      data: (json['data'] as Map?)?.map(
+        (k, e) => MapEntry(k as String, e),
+      ),
+      isReply: json['isReply'] as bool? ?? false,
     );
 
 Map<String, dynamic> _$ChatMessageEntityToJson(ChatMessageEntity instance) =>
@@ -26,4 +30,6 @@ Map<String, dynamic> _$ChatMessageEntityToJson(ChatMessageEntity instance) =>
       'createTimeEpoch': instance.createTimeEpoch,
       'type': instance.type,
       'reactions': instance.reactions,
+      'data': instance.data,
+      'isReply': instance.isReply,
     };

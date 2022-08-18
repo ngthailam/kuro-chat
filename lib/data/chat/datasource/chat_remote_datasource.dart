@@ -26,6 +26,7 @@ abstract class ChatRemoteDataSource {
     required String text,
     required String senderId,
     required String senderName,
+    ChatMessageEntity? replyMessage,
   });
 
   Future deleteMessage({required String channelId, required String messageId});
@@ -133,6 +134,7 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     required String text,
     required String senderId,
     required String senderName,
+    ChatMessageEntity? replyMessage,
   }) async {
     if (channelId.isEmpty ||
         text.isEmpty ||
@@ -146,11 +148,14 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
       'chat/$channelId/messages/$nowEpoch',
     );
     final newChatMessage = ChatMessageEntity(
-        senderId: senderId,
-        senderName: senderName,
-        text: text,
-        createTimeEpoch: nowEpoch,
-        type: chatTypeMessage);
+      senderId: senderId,
+      senderName: senderName,
+      text: text,
+      createTimeEpoch: nowEpoch,
+      type: chatTypeMessage,
+      isReply: replyMessage != null,
+      data: replyMessage?.toJson(),
+    );
 
     // Add try catch
     await ref.update(newChatMessage.toJson());

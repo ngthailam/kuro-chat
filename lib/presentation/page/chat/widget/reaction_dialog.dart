@@ -6,12 +6,12 @@ import 'package:kuro_chat/presentation/constant/color.dart';
 // TODO: use classes and shits for output
 typedef ReactionDialogCallback = Function({
   String? reactionText,
-  String? chatText,
-  required String messageId,
+  ChatMessageEntity? chatMessage,
   required ChatMessageOptions option,
 });
 
 enum ChatMessageOptions {
+  reply,
   react,
   copy,
   delete,
@@ -97,33 +97,47 @@ class ChatMessageOptionDialog extends StatelessWidget {
       color: Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          _optionIconAndName(
-              iconData: Icons.copy,
-              text: 'Copy',
-              onPressed: () {
-                dimiss();
-                // TODO: maybe copy here immediately ?
-                callback(
-                  option: ChatMessageOptions.copy,
-                  messageId: chatMessage.id,
-                  chatText: chatMessage.text,
-                );
-              }),
-          if (isSender)
-            _optionIconAndName(
-                iconData: Icons.delete,
-                text: 'Delete',
-                onPressed: () {
-                  dimiss();
-                  callback(
-                    option: ChatMessageOptions.delete,
-                    messageId: chatMessage.id,
-                  );
-                }),
-        ],
+        children: _buildOptions(),
       ),
     );
+  }
+
+  List<Widget> _buildOptions() {
+    return [
+      _optionIconAndName(
+          iconData: Icons.reply,
+          text: 'Reply',
+          onPressed: () {
+            dimiss();
+            callback(
+              option: ChatMessageOptions.reply,
+              chatMessage: chatMessage,
+            );
+          }),
+      _optionIconAndName(
+          iconData: Icons.copy,
+          text: 'Copy',
+          onPressed: () {
+            dimiss();
+            // TODO: maybe copy here immediately ?
+            callback(
+              option: ChatMessageOptions.copy,
+              chatMessage: chatMessage,
+            );
+          }),
+      if (isSender)
+        _optionIconAndName(
+          iconData: Icons.delete,
+          text: 'Delete',
+          onPressed: () {
+            dimiss();
+            callback(
+              option: ChatMessageOptions.delete,
+              chatMessage: chatMessage,
+            );
+          },
+        ),
+    ];
   }
 
   Widget _optionIconAndName({
@@ -162,7 +176,7 @@ class ChatMessageOptionDialog extends StatelessWidget {
         dimiss();
         callback(
           option: ChatMessageOptions.react,
-          messageId: messageId,
+          chatMessage: chatMessage,
           reactionText: reactionText,
         );
       },
@@ -221,8 +235,7 @@ mixin ReactionMixin<T extends StatefulWidget> on State<T> {
 
   ReactionDialogCallback get chatMessageCallback => ({
         String? reactionText,
-        String? chatText,
-        required String messageId,
+        ChatMessageEntity? chatMessage,
         required ChatMessageOptions option,
       }) {};
 }

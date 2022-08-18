@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 
+// key: string cache key
+// value: box decoration
+final Map<String, BoxDecoration> bubbleCache = {};
+
 class BubbleDecorationBuilder {
   final bool isSender;
   final ChatPosition position;
@@ -11,12 +15,18 @@ class BubbleDecorationBuilder {
   });
 
   BoxDecoration build() {
-    // TODO: add cache to improve performance
+    final key = '$isSender-$position';
+    if (bubbleCache[key] != null) {
+      print("ZZLL Bubble decoration from cache=${key}");
+      return bubbleCache[key]!;
+    }
+
     final boxDecoration = BoxDecoration(
       borderRadius: getBorderRadius(),
       color: isSender ? clrCornFlower : clrGrayLighter,
     );
 
+    bubbleCache[key] = boxDecoration;
     return boxDecoration;
   }
 
