@@ -53,7 +53,8 @@ _i1.GetIt $initGetIt(_i1.GetIt get,
   gh.factory<_i14.AuthRepo>(() => _i14.AuthRepoImpl(
       get<_i13.AuthRemoteDataSource>(),
       get<_i11.UserRemoteDataSource>(),
-      get<_i10.UserLocalDataSource>()));
+      get<_i10.UserLocalDataSource>(),
+      get<_i6.LastMessageLocalDataSource>()));
   gh.factory<_i15.ChannelRemoteDataSource>(
       () => _i15.ChannelRemoteDataSourceImpl(get<_i5.ChatRemoteDataSource>()));
   gh.factory<_i16.ChannelRepo>(() => _i16.ChannelRepoImpl(

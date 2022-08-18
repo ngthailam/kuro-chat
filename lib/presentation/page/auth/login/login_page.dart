@@ -13,7 +13,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  late final LoginController _controller;
+  LoginController? _controller;
 
   final TextEditingController _textCtrl = TextEditingController();
 
@@ -27,12 +27,12 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   void _listenEvents() {
-    _controller.loginLoadState.listen((state) {
+    _controller?.loginLoadState.listen((state) {
       if (state == LoadState.success) {
         _openChannelListPage();
         return;
@@ -47,9 +47,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (!_controller.initialized) {
-      _controller = Get.find<LoginController>();
-    }
+    _controller ??= Get.find<LoginController>();
+
     return Scaffold(
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -70,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                 Get.snackbar('', 'Name must not be empty');
                 return;
               }
-              _controller.login(_textCtrl.text);
+              _controller?.login(_textCtrl.text);
             },
             child: const Text('Login'),
           )

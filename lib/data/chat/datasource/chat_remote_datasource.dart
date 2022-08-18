@@ -6,6 +6,13 @@ import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 abstract class ChatRemoteDataSource {
+  // TODO: this pagination works
+  // but onChildAdded is super weird, it gets ALL previous child first
+  Future<List<ChatMessageEntity>> getMessages({
+    required String channelId,
+    required String oldestMessageId,
+  });
+
   Stream<List<ChatMessageEntity>> observeMessages(String channelId);
 
   Stream<ChatExtraDataEntity> observeExtraData(String channelId);
@@ -35,6 +42,31 @@ abstract class ChatRemoteDataSource {
 
 @Injectable(as: ChatRemoteDataSource)
 class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
+  @override
+  Future<List<ChatMessageEntity>> getMessages({
+    required String channelId,
+    required String oldestMessageId,
+  }) async {
+    final ref = FirebaseDatabase.instance.ref('chat/$channelId/messages');
+    var query = ref.orderByKey().limitToLast(5);
+    if (oldestMessageId.isNotEmpty) {
+      query = query.endBefore(oldestMessageId);
+    }
+
+    final snapshotList = (await query.get()).children;
+    final List<ChatMessageEntity> messages = [];
+    for (var data in snapshotList) {
+      if (data.exists) {
+        final msg = ChatMessageEntity.fromJson(
+          Map<String, dynamic>.from(data.value as Map),
+        );
+        messages.add(msg);
+      }
+    }
+
+    return messages;
+  }
+
   @override
   Stream<List<ChatMessageEntity>> observeMessages(String channelId) {
     final ref = FirebaseDatabase.instance.ref('chat/$channelId/messages');
@@ -164,8 +196,6 @@ class ChatRemoteDataSourceImpl extends ChatRemoteDataSource {
     if (isAdd) {
       return ref.update({currentUserId: true});
     } else {
-      // print(
-      //     "ZZLL updateReaction remove path = ${'${ref.path}/$currentUserId'}");
       final removeRef =
           FirebaseDatabase.instance.ref('${ref.path}/$currentUserId');
       return removeRef.remove();

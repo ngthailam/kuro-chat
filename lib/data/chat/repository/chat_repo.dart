@@ -29,6 +29,11 @@ abstract class ChatRepo {
     required String channelId,
     required String messageId,
   });
+
+  Future<List<ChatMessageEntity>> getMessages({
+    required String channelId,
+    required String oldestMessageId,
+  });
 }
 
 @Injectable(as: ChatRepo)
@@ -42,6 +47,13 @@ class ChatRepoImpl extends ChatRepo {
     this._chatRemoteDataSource,
     this._lastMessageRemoteDataSource,
   );
+
+  @override
+  Future<List<ChatMessageEntity>> getMessages(
+      {required String channelId, required String oldestMessageId}) {
+    return _chatRemoteDataSource.getMessages(
+        channelId: channelId, oldestMessageId: oldestMessageId);
+  }
 
   @override
   Future<ChatEntity> getChat(String channelId) {
@@ -108,8 +120,6 @@ class ChatRepoImpl extends ChatRepo {
   @override
   Future deleteMessage({required String channelId, required String messageId}) {
     return _chatRemoteDataSource.deleteMessage(
-      channelId: channelId,
-      messageId: messageId
-    );
+        channelId: channelId, messageId: messageId);
   }
 }

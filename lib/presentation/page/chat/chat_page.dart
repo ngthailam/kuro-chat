@@ -13,6 +13,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
   ChatPage({Key? key}) : super(key: key);
 
   final TextEditingController _textController = TextEditingController();
+  final FocusNode _textFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -242,6 +243,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
               _textController.text = '';
               controller.onTypeChat('');
               controller.sendMessage(text);
+              _textFocusNode.requestFocus();
             },
           ),
         ],
