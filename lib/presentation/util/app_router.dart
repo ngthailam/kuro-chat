@@ -52,7 +52,7 @@ class AppRouter {
       ),
       GetPage(
         name: AppRouter.chat,
-        page: () => ChatPage(),
+        page: () => const ChatPage(),
         binding: ChatBindings(),
       ),
       GetPage(

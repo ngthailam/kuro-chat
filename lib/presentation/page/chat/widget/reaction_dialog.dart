@@ -177,7 +177,7 @@ class ChatMessageOptionDialog extends StatelessWidget {
   }
 }
 
-mixin ReactionMixin on StatelessWidget {
+mixin ReactionMixin<T extends StatefulWidget> on State<T> {
   OverlayEntry? reactionOverlayEntry;
   bool _isReactionShowing = false;
 

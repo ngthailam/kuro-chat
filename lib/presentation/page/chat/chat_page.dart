@@ -5,15 +5,46 @@ import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
+import 'package:kuro_chat/presentation/emoji/emoji_picker.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/reaction_dialog.dart';
 
 // ignore: must_be_immutable
-class ChatPage extends GetView<ChatController> with ReactionMixin {
-  ChatPage({Key? key}) : super(key: key);
+class ChatPage extends StatefulWidget {
+  const ChatPage({Key? key}) : super(key: key);
 
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage>
+    with ReactionMixin, TickerProviderStateMixin {
+  final ChatController _controller = Get.find<ChatController>();
   final TextEditingController _textController = TextEditingController();
   final FocusNode _textFocusNode = FocusNode();
+
+  AnimationController? _pickerAnimationController;
+  Animation<double>? _sizeFactor;
+
+  @override
+  void initState() {
+    super.initState();
+    _pickerAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+
+    _sizeFactor = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+      parent: _pickerAnimationController!,
+      curve: Curves.easeInOut,
+    ));
+  }
+
+  @override
+  void dispose() {
+    _pickerAnimationController?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,6 +55,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
             _channelHeader(),
             _chat(),
             _chatInput(),
+            _picker(),
           ],
         ),
       ),
@@ -32,7 +64,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
 
   Widget _channelHeader() {
     return Obx(() {
-      final channel = controller.channel.value;
+      final channel = _controller.channel.value;
 
       if (channel != null) {
         return SafeArea(
@@ -103,7 +135,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
       return const SizedBox.shrink();
     }
 
-    final isTargetOnline = controller.isTargetOnline();
+    final isTargetOnline = _controller.isTargetOnline();
     if (channel.isOneOneChat) {
       return Row(
         children: [
@@ -137,7 +169,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
 
   Widget _chat() {
     return Obx(() {
-      final messages = controller.messages;
+      final messages = _controller.messages;
 
       // log("_chat isTargetTyping=$isTargetTyping || _itemLength=$itemLength");
 
@@ -145,28 +177,36 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
         return const Expanded(child: SizedBox.shrink());
       }
 
-      final chatItems = controller.builder.generateItems();
+      final chatItems = _controller.builder.generateItems();
 
       return Expanded(
-        child: ListView.separated(
-          key: const ValueKey('messages'),
-          addAutomaticKeepAlives: false,
-          physics: const BouncingScrollPhysics(),
-          reverse: true,
-          itemCount: chatItems.length,
-          separatorBuilder: (context, i) => const SizedBox(height: 4),
-          itemBuilder: (context, i) {
-            final chatItem = chatItems[i];
-            return controller.builder.buildItem(
-              item: chatItem,
-              onLongPressEnd: (details) {
-                showOptionsOverlay(
-                    context: context,
-                    position: details.globalPosition,
-                    chatMessage: chatItem.messageEntity!);
-              },
-            );
+        child: GestureDetector(
+          onTap: () {
+            if (_pickerAnimationController?.status ==
+                AnimationStatus.completed) {
+              _pickerAnimationController?.reverse();
+            }
           },
+          child: ListView.separated(
+            key: const ValueKey('messages'),
+            addAutomaticKeepAlives: false,
+            physics: const BouncingScrollPhysics(),
+            reverse: true,
+            itemCount: chatItems.length,
+            separatorBuilder: (context, i) => const SizedBox(height: 4),
+            itemBuilder: (context, i) {
+              final chatItem = chatItems[i];
+              return _controller.builder.buildItem(
+                item: chatItem,
+                onLongPressEnd: (details) {
+                  showOptionsOverlay(
+                      context: context,
+                      position: details.globalPosition,
+                      chatMessage: chatItem.messageEntity!);
+                },
+              );
+            },
+          ),
         ),
       );
     });
@@ -180,7 +220,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
         required ChatMessageOptions option,
       }) {
         if (option == ChatMessageOptions.react) {
-          controller.onReactionPress(
+          _controller.onReactionPress(
               messageId: messageId, reactionText: reactionText!);
           return;
         }
@@ -194,7 +234,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
         }
 
         if (option == ChatMessageOptions.delete) {
-          controller.deleteMessage(messageId: messageId);
+          _controller.deleteMessage(messageId: messageId);
           return;
         }
       };
@@ -213,10 +253,27 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
       ),
       child: Row(
         children: [
-          const Icon(
-            Icons.emoji_emotions,
-            color: clrGrayLight,
-            size: 24,
+          IconButton(
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(),
+            onPressed: () {
+              if (_pickerAnimationController == null) return;
+              switch (_pickerAnimationController!.status) {
+                case AnimationStatus.dismissed:
+                  _pickerAnimationController?.forward();
+                  break;
+                case AnimationStatus.completed:
+                  _pickerAnimationController?.reverse();
+                  break;
+                default:
+                  return;
+              }
+            },
+            icon: const Icon(
+              Icons.emoji_emotions,
+              color: clrGrayLight,
+              size: 24,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -224,7 +281,7 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
               decoration: const InputDecoration.collapsed(hintText: 'Message'),
               controller: _textController,
               onChanged: (text) {
-                controller.onTypeChat(text);
+                _controller.onTypeChat(text);
               },
             ),
           ),
@@ -241,12 +298,26 @@ class ChatPage extends GetView<ChatController> with ReactionMixin {
               // even after message is sent
               final text = _textController.text;
               _textController.text = '';
-              controller.onTypeChat('');
-              controller.sendMessage(text);
+              _controller.onTypeChat('');
+              _controller.sendMessage(text);
               _textFocusNode.requestFocus();
             },
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _picker() {
+    return SizeTransition(
+      sizeFactor: _sizeFactor!,
+      child: MyEmojiPicker(
+        onEmojiPicked: (emoji) {
+          final newText = _textController.text + emoji.icon;
+          _textController.text = newText;
+          _textController.selection =
+              TextSelection.collapsed(offset: newText.length);
+        },
       ),
     );
   }

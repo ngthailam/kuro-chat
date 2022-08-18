@@ -30,7 +30,6 @@ A simple chat application with the purpose to improve and practice my programmin
 - Add send images
 - Add quote message (1 level)
 - Add mentions
-- Add emoji keyboard
 - Add notifications
 - Add settings screen
 - Add search channels
