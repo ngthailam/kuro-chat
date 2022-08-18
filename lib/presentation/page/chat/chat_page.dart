@@ -27,6 +27,9 @@ class _ChatPageState extends State<ChatPage>
   AnimationController? _pickerAnimationController;
   Animation<double>? _sizeFactor;
 
+  AnimationController? _replyAnimationController;
+  Animation<double>? _replySizeFactor;
+
   @override
   void initState() {
     super.initState();
@@ -40,10 +43,21 @@ class _ChatPageState extends State<ChatPage>
       parent: _pickerAnimationController!,
       curve: Curves.easeInOut,
     ));
+
+    _replyAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+
+    _replySizeFactor = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+      parent: _pickerAnimationController!,
+      curve: Curves.easeInOut,
+    ));
   }
 
   @override
   void dispose() {
+    _replyAnimationController?.dispose();
     _pickerAnimationController?.dispose();
     super.dispose();
   }
