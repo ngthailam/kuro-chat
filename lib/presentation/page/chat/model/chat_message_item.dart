@@ -19,3 +19,9 @@ class ChatItemText extends ChatMessageItem {
 class ChatItemUnreadCutoff extends ChatMessageItem {}
 
 class ChatItemTyping extends ChatMessageItem {}
+
+class ChatItemDateCutoff extends ChatMessageItem {
+  final String displayDate;
+
+  ChatItemDateCutoff({required this.displayDate});
+}

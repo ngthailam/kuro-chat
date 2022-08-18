@@ -11,7 +11,6 @@ A simple chat application with the purpose to improve and practice my programmin
 
 ### Enhancements
 - Paginate chat messages (HIGH) ===> Encountering problems with pagination issue with onChildAdded
-- Divide messages by date
 - Update Register/Login screen
 - Online/offline statuses are not real time
 - [channel_list_page][IOS] Allow background color behind notch

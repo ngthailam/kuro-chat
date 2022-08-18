@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/presentation/page/chat/model/chat_message_item.dart';
 import 'package:kuro_chat/presentation/page/chat/util/bubble_decoration_builder.dart';
+import 'package:kuro_chat/presentation/page/chat/widget/chat_message_date_cutoff.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/chat_message_is_typing.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/chat_message_text.dart';
 import 'package:kuro_chat/presentation/page/chat/widget/chat_message_unread_cutoff.dart';
+import 'package:kuro_chat/presentation/util/date_util.dart';
 
 // Should be a single instance inside the ChatPage scope
 class ChatMessageListItemBuilder {
@@ -14,6 +16,7 @@ class ChatMessageListItemBuilder {
   bool isTargetTyping = false;
   int? lastMessageReadTimeEpoch = 0;
   // TODO: use smt to keep the animation if posible
+  // find other solution for this adhoc
   int loadCount = 0;
 
   ChatMessageListItemBuilder({
@@ -36,19 +39,57 @@ class ChatMessageListItemBuilder {
   List<ChatMessageItem> generateItems() {
     final List<ChatMessageItem> items = [];
 
+    // [SECTION] TYPING
     if (isTargetTyping) {
       items.add(ChatItemTyping());
     }
 
+    // Messages is from bottom up
+    // -> index == 0 -> latest message (bottom)
     bool addedUnreadItem = false;
     for (var i = 0; i < messages.length; i++) {
-      final messageEntity = messages[i];
+      final ChatMessageEntity currentMessage = messages[i];
 
-      // Adding unread cut off
-      if (lastMessageReadTimeEpoch != null && loadCount < 2) {
+      // [SECTION] MESSAGE
+      items.add(
+        ChatItemText(
+          messageEntity: currentMessage,
+          chatPosition: _resolvePosition(i),
+        ),
+      );
+
+      // [SECTION] DATE CUT-OFF
+      final messageOnTop = i == messages.length - 1 ? null : messages[i + 1];
+      // First message in chat (on top)
+      // print(
+      //     "ZZLL i=$i, text=${currentMessage.text}, isTopMost=${i == messages.length - 1}");
+      if (i == messages.length - 1) {
+        items.add(ChatItemDateCutoff(
+          displayDate: MyDateUtils.toDayEEEE(currentMessage.createTimeEpoch),
+        ));
+      } else {
+        final isNewDay = !MyDateUtils.isSameDate(
+          messageOnTop!.createTimeEpoch,
+          currentMessage.createTimeEpoch,
+        );
+
+        if (isNewDay) {
+          items.add(
+            ChatItemDateCutoff(
+              displayDate:
+                  MyDateUtils.toDayEEEE(currentMessage.createTimeEpoch),
+            ),
+          );
+        }
+      }
+
+      // [SECTION] UNREAD CUT-OFF
+      if (!addedUnreadItem &&
+          lastMessageReadTimeEpoch != null &&
+          loadCount < 2) {
         final isRead =
-            messageEntity.createTimeEpoch <= lastMessageReadTimeEpoch!;
-        if (!addedUnreadItem && !isRead && i != messages.length - 1) {
+            currentMessage.createTimeEpoch <= lastMessageReadTimeEpoch!;
+        if (!isRead && i != messages.length - 1) {
           final isNextItemRead =
               messages[i + 1].createTimeEpoch <= lastMessageReadTimeEpoch!;
           if (isNextItemRead) {
@@ -57,14 +98,6 @@ class ChatMessageListItemBuilder {
           }
         }
       }
-
-      // Add message text item
-      items.add(
-        ChatItemText(
-          messageEntity: messageEntity,
-          chatPosition: _resolvePosition(i),
-        ),
-      );
     }
 
     return items;
@@ -94,6 +127,10 @@ class ChatMessageListItemBuilder {
 
     if (item is ChatItemUnreadCutoff) {
       return const ChatMessageUnreadCutoff();
+    }
+
+    if (item is ChatItemDateCutoff) {
+      return ChatMessageDateCutoffState(displayDate: item.displayDate);
     }
 
     return const SizedBox.shrink();
