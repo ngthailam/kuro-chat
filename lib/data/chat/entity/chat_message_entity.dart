@@ -21,6 +21,10 @@ class ChatMessageEntity {
   // value: map: with key: userId, value: always true
   final Map<String, Map<String, bool>> reactions;
 
+  final Map<String, dynamic>? data;
+
+  final bool isReply;
+
   String get id => createTimeEpoch.toString();
 
   ChatMessageEntity({
@@ -30,6 +34,8 @@ class ChatMessageEntity {
     this.createTimeEpoch = 0,
     this.type = chatTypeMessage,
     this.reactions = const {},
+    this.data,
+    this.isReply = false,
   });
 
   ChatMessageEntity copyWith({
@@ -39,6 +45,8 @@ class ChatMessageEntity {
     int? createTimeEpoch,
     String? type,
     Map<String, Map<String, bool>>? reactions,
+    Map<String, dynamic>? data,
+    bool? isReply,
   }) {
     return ChatMessageEntity(
       senderId: senderId ?? this.senderId,
@@ -47,6 +55,8 @@ class ChatMessageEntity {
       createTimeEpoch: createTimeEpoch ?? this.createTimeEpoch,
       type: type ?? this.type,
       reactions: reactions ?? this.reactions,
+      data: data ?? this.data,
+      isReply: isReply ?? this.isReply,
     );
   }
 

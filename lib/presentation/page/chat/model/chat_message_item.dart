@@ -25,3 +25,5 @@ class ChatItemDateCutoff extends ChatMessageItem {
 
   ChatItemDateCutoff({required this.displayDate});
 }
+
+class ChatItemBottomSpacing extends ChatMessageItem {}

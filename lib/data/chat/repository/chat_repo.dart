@@ -10,7 +10,11 @@ import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 abstract class ChatRepo {
   Future<ChatEntity> getChat(String channelId);
 
-  Future sendMessage(String channelId, String text);
+  Future sendMessage(
+    String channelId,
+    String text, {
+    ChatMessageEntity? replyMessage,
+  });
 
   Stream<List<ChatMessageEntity>> observeMessages(String channelId);
 
@@ -61,13 +65,16 @@ class ChatRepoImpl extends ChatRepo {
   }
 
   @override
-  Future sendMessage(String channelId, String text) async {
+  Future sendMessage(String channelId, String text,{
+    ChatMessageEntity? replyMessage,
+  }) async {
     try {
       final message = await _chatRemoteDataSource.sendMessage(
         channelId: channelId,
         text: text,
         senderId: currentUser!.id,
         senderName: currentUser!.name,
+        replyMessage: replyMessage,
       );
       _lastMessageRemoteDataSource.updateChannelLastMessage(
         channelId: channelId,

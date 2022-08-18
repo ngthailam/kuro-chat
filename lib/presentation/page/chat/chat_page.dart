@@ -4,6 +4,7 @@ import 'package:get/get_navigation/src/extension_navigation.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:kuro_chat/data/channel/entity/channel_entity.dart';
+import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/emoji/emoji_picker.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
@@ -26,9 +27,13 @@ class _ChatPageState extends State<ChatPage>
   AnimationController? _pickerAnimationController;
   Animation<double>? _sizeFactor;
 
+  AnimationController? _replyAnimationController;
+  Animation<double>? _replySizeFactor;
+
   @override
   void initState() {
     super.initState();
+    // TODO: lazy init these
     _pickerAnimationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 150),
@@ -38,10 +43,21 @@ class _ChatPageState extends State<ChatPage>
       parent: _pickerAnimationController!,
       curve: Curves.easeInOut,
     ));
+
+    _replyAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 150),
+    );
+
+    _replySizeFactor = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
+      parent: _pickerAnimationController!,
+      curve: Curves.easeInOut,
+    ));
   }
 
   @override
   void dispose() {
+    _replyAnimationController?.dispose();
     _pickerAnimationController?.dispose();
     super.dispose();
   }
@@ -54,6 +70,7 @@ class _ChatPageState extends State<ChatPage>
           children: [
             _channelHeader(),
             _chat(),
+            _replyBox(),
             _chatInput(),
             _picker(),
           ],
@@ -182,6 +199,9 @@ class _ChatPageState extends State<ChatPage>
       return Expanded(
         child: GestureDetector(
           onTap: () {
+            if (_textFocusNode.hasFocus) {
+              FocusScope.of(context).unfocus();
+            }
             if (_pickerAnimationController?.status ==
                 AnimationStatus.completed) {
               _pickerAnimationController?.reverse();
@@ -200,9 +220,10 @@ class _ChatPageState extends State<ChatPage>
                 item: chatItem,
                 onLongPressEnd: (details) {
                   showOptionsOverlay(
-                      context: context,
-                      position: details.globalPosition,
-                      chatMessage: chatItem.messageEntity!);
+                    context: context,
+                    position: details.globalPosition,
+                    chatMessage: chatItem.messageEntity!,
+                  );
                 },
               );
             },
@@ -215,18 +236,18 @@ class _ChatPageState extends State<ChatPage>
   @override
   ReactionDialogCallback get chatMessageCallback => ({
         String? reactionText,
-        String? chatText,
-        required String messageId,
+        ChatMessageEntity? chatMessage,
         required ChatMessageOptions option,
       }) {
+        // print("ZZLL option ${option.name}");
         if (option == ChatMessageOptions.react) {
           _controller.onReactionPress(
-              messageId: messageId, reactionText: reactionText!);
+              messageId: chatMessage!.id, reactionText: reactionText!);
           return;
         }
 
         if (option == ChatMessageOptions.copy) {
-          Clipboard.setData(ClipboardData(text: chatText)).then((_) {
+          Clipboard.setData(ClipboardData(text: chatMessage!.text)).then((_) {
             ScaffoldMessenger.of(Get.context!).showSnackBar(
                 const SnackBar(content: Text("Copied to clipboard")));
           });
@@ -234,14 +255,19 @@ class _ChatPageState extends State<ChatPage>
         }
 
         if (option == ChatMessageOptions.delete) {
-          _controller.deleteMessage(messageId: messageId);
+          _controller.deleteMessage(messageId: chatMessage!.id);
+          return;
+        }
+
+        if (option == ChatMessageOptions.reply) {
+          _replyChatMessageNotifier.value = chatMessage;
+          _textFocusNode.requestFocus();
           return;
         }
       };
 
-  _chatInput() {
+  Widget _chatInput() {
     return Container(
-      margin: const EdgeInsets.only(top: 8),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       decoration: BoxDecoration(
         // TODO: update border color
@@ -280,6 +306,7 @@ class _ChatPageState extends State<ChatPage>
             child: TextField(
               decoration: const InputDecoration.collapsed(hintText: 'Message'),
               controller: _textController,
+              focusNode: _textFocusNode,
               onChanged: (text) {
                 _controller.onTypeChat(text);
               },
@@ -294,17 +321,81 @@ class _ChatPageState extends State<ChatPage>
               color: clrCornFlower,
             ),
             onPressed: () {
-              // TODO: typing text dissapear too slow
-              // even after message is sent
-              final text = _textController.text;
-              _textController.text = '';
-              _controller.onTypeChat('');
-              _controller.sendMessage(text);
-              _textFocusNode.requestFocus();
+              _onSendPressed();
             },
           ),
         ],
       ),
+    );
+  }
+
+  void _onSendPressed() {
+    // TODO: typing text dissapear too slow
+    // even after message is sent
+    final text = _textController.text;
+    _textController.text = '';
+    _controller.onTypeChat('');
+    _controller.sendMessage(
+      text,
+      replyMessage: _replyChatMessageNotifier.value,
+    );
+    if (_replyChatMessageNotifier.value != null) {
+      _replyChatMessageNotifier.value = null;
+    }
+    _textFocusNode.requestFocus();
+  }
+
+  final ValueNotifier<ChatMessageEntity?> _replyChatMessageNotifier =
+      ValueNotifier<ChatMessageEntity?>(null);
+
+  Widget _replyBox() {
+    return ValueListenableBuilder(
+      valueListenable: _replyChatMessageNotifier,
+      // TODO: optimize this some how
+      builder:
+          (BuildContext context, ChatMessageEntity? message, Widget? child) {
+        if (message == null) return const SizedBox.shrink();
+        return Container(
+          color: clrGrayLightest,
+          width: MediaQuery.of(context).size.width,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Replying to ${message.senderName}',
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 12),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        message.text,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  constraints: const BoxConstraints(),
+                  padding: EdgeInsets.zero,
+                  onPressed: () {
+                    _replyChatMessageNotifier.value = null;
+                  },
+                  icon: const Icon(
+                    Icons.close,
+                    size: 18,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 

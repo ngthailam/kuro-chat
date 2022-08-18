@@ -28,8 +28,6 @@ A simple chat application with the purpose to improve and practice my programmin
         => Dismiss keyboard on long press chat message
 ### New features
 - Add send images
-- Add quote message (1 level)
 - Add mentions
 - Add notifications
-- Add settings screen
 - Add search channels
