@@ -235,7 +235,8 @@ class ChannelListPage extends GetView<ChannelListController> {
     );
   }
 
-  void _openCreateChannelPage() {
-    Get.toNamed(AppRouter.channelCreate);
+  void _openCreateChannelPage() async {
+    await Get.toNamed(AppRouter.channelCreate);
+    controller.refreshMyChannels();
   }
 }

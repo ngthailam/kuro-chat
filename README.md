@@ -23,7 +23,6 @@ A simple chat application with the purpose to improve and practice my programmin
 - Get online status only once when enter chat page, to reduce unneeded listen online status
 - Queue to debounce send messages to reduce writes
 ### Bugs
-- Reload channel list after create channel
 - App bar color 
 - [chat_page] When keyboard is open, long press -> show delete bottom sheet -> keyboard cover this
         => Dismiss keyboard on long press chat message
