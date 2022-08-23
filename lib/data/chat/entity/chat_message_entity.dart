@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:kuro_chat/data/user/datasource/user_local_datasource.dart';
 
 part 'chat_message_entity.g.dart';
 
@@ -26,6 +27,8 @@ class ChatMessageEntity {
   final bool isReply;
 
   String get id => createTimeEpoch.toString();
+
+  bool get isSender => senderId == currentUserId;
 
   ChatMessageEntity({
     required this.senderId,

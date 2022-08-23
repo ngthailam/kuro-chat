@@ -9,3 +9,4 @@ const clrLipStick = Color(0xffF92809);
 const clrGrayLight = Color.fromARGB(255, 160, 160, 160);
 const clrGrayLighter = Color.fromARGB(255, 186, 186, 186);
 const clrGrayLightest = Color.fromARGB(255, 227, 227, 227);
+const clrNearWhite = Color.fromARGB(255, 239, 239, 239);

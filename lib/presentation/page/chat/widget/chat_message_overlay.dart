@@ -102,7 +102,9 @@ class ChatMessageOptionDialog extends StatelessWidget {
   }
 
   List<Widget> _buildOptions() {
-    return [
+    final optionWidgets = <Widget>[];
+
+    optionWidgets.add(
       _optionIconAndName(
           iconData: Icons.reply,
           text: 'Reply',
@@ -113,30 +115,34 @@ class ChatMessageOptionDialog extends StatelessWidget {
               chatMessage: chatMessage,
             );
           }),
-      _optionIconAndName(
-          iconData: Icons.copy,
-          text: 'Copy',
-          onPressed: () {
-            dimiss();
-            // TODO: maybe copy here immediately ?
-            callback(
-              option: ChatMessageOptions.copy,
-              chatMessage: chatMessage,
-            );
-          }),
-      if (isSender)
-        _optionIconAndName(
-          iconData: Icons.delete,
-          text: 'Delete',
-          onPressed: () {
-            dimiss();
-            callback(
-              option: ChatMessageOptions.delete,
-              chatMessage: chatMessage,
-            );
-          },
-        ),
-    ];
+    );
+
+    optionWidgets.add(_optionIconAndName(
+        iconData: Icons.copy,
+        text: 'Copy',
+        onPressed: () {
+          dimiss();
+          callback(
+            option: ChatMessageOptions.copy,
+            chatMessage: chatMessage,
+          );
+        }));
+
+    if (isSender) {
+      optionWidgets.add(_optionIconAndName(
+        iconData: Icons.delete,
+        text: 'Delete',
+        onPressed: () {
+          dimiss();
+          callback(
+            option: ChatMessageOptions.delete,
+            chatMessage: chatMessage,
+          );
+        },
+      ));
+    }
+
+    return optionWidgets;
   }
 
   Widget _optionIconAndName({

@@ -8,7 +8,7 @@ import 'package:kuro_chat/data/chat/entity/chat_message_entity.dart';
 import 'package:kuro_chat/presentation/constant/color.dart';
 import 'package:kuro_chat/presentation/emoji/emoji_picker.dart';
 import 'package:kuro_chat/presentation/page/chat/chat_controller.dart';
-import 'package:kuro_chat/presentation/page/chat/widget/reaction_dialog.dart';
+import 'package:kuro_chat/presentation/page/chat/widget/chat_message_overlay.dart';
 
 // ignore: must_be_immutable
 class ChatPage extends StatefulWidget {
@@ -27,9 +27,6 @@ class _ChatPageState extends State<ChatPage>
   AnimationController? _pickerAnimationController;
   Animation<double>? _sizeFactor;
 
-  AnimationController? _replyAnimationController;
-  Animation<double>? _replySizeFactor;
-
   @override
   void initState() {
     super.initState();
@@ -43,21 +40,10 @@ class _ChatPageState extends State<ChatPage>
       parent: _pickerAnimationController!,
       curve: Curves.easeInOut,
     ));
-
-    _replyAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 150),
-    );
-
-    _replySizeFactor = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
-      parent: _pickerAnimationController!,
-      curve: Curves.easeInOut,
-    ));
   }
 
   @override
   void dispose() {
-    _replyAnimationController?.dispose();
     _pickerAnimationController?.dispose();
     super.dispose();
   }
@@ -369,7 +355,7 @@ class _ChatPageState extends State<ChatPage>
           (BuildContext context, ChatMessageEntity? message, Widget? child) {
         if (message == null) return const SizedBox.shrink();
         return Container(
-          color: clrGrayLightest,
+          color: clrNearWhite,
           width: MediaQuery.of(context).size.width,
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -380,7 +366,7 @@ class _ChatPageState extends State<ChatPage>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Replying to ${message.senderName}',
+                        'Replying to ${message.isSender ? 'Yourself' : message.senderName}',
                         style: const TextStyle(
                             fontWeight: FontWeight.bold, fontSize: 12),
                       ),
